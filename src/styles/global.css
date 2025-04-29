@@ -1,1 +1,25 @@
-/* Tailwind directives */
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: #e9eaff;
+  color: #1a202c;
+}
+
+input[type="range"] {
+  width: 100%;
+  height: 6px;
+  border-radius: 5px;
+  background: #ccc;
+  outline: none;
+  transition: background 0.3s;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  width: 18px;
+  height: 18px;
+  background: #6b46c1;
+  border-radius: 50%;
+  cursor: pointer;
+  appearance: none;
+  margin-top: -6px;
+}
