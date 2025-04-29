@@ -1,13 +1,18 @@
 import React from 'react';
 
-const Header = () => {
+export default function Header() {
   return (
-    <header className="w-full flex flex-col items-center py-4 mb-6 border-b border-gray-300">
-      <img src="/petrantocalculator.png" alt="PetrAnto Logo" className="h-20 mb-2" />
-      <h1 className="text-2xl font-bold text-gray-800">🩸 PetrAnto Mitosis Airdrop Calculator</h1>
-      <p className="text-sm text-gray-500 mt-1">Estimate your airdrop allocation based on MITO Points, NFTs, Discord Roles and Testnet rewards.</p>
+    <header className="w-full bg-gray-900 shadow-md">
+      <div className="container mx-auto flex items-center justify-between py-4 px-6">
+        <img
+          src="/petrantocalculator.png"
+          alt="Logo MITO"
+          className="h-10 w-auto"
+        />
+        <h1 className="text-2xl font-bold text-white">
+          Mitosis Airdrop Estimator
+        </h1>
+      </div>
     </header>
   );
-};
-
-export default Header;
+}
