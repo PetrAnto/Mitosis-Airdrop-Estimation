@@ -15,23 +15,19 @@ export default function App() {
   const [expPct, setExpPct] = useState(15);
   const [theoPct, setTheoPct] = useState(10);
   const [testPct, setTestPct] = useState(10);
+  const [bonuses, setBonuses] = useState([
+    { key: 'morse',      label: 'Morse NFT',                supply: 2924,  selected: false, pct: 1   },
+    { key: 'partner',    label: 'NFT Partner Collections',  supply: 38888, selected: false, pct: 0.5 },
+    { key: 'discordMi',  label: 'Discord Mi-Role',          supply: 100,   selected: false, pct: 0.5 },
+    { key: 'discordInt', label: 'Discord Intern-Role Bonus', supply: 200,  selected: false, pct: 0.5 },
+    { key: 'kaito',      label: 'Kaito Yapper',             supply: 1000,  selected: false, pct: 0.5 },
+  ]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
   const FDV_USD = 150 * 1_000_000;
 
-  const bonusDefs = [
-    { key: 'morse',      label: 'Morse NFT',                supply: 2924,  defaultPct: 1   },
-    { key: 'partner',    label: 'NFT Partner Collections',  supply: 38888, defaultPct: 0.5 },
-    { key: 'discordMi',  label: 'Discord Mi-Role',          supply: 100,   defaultPct: 0.5 },
-    { key: 'discordInt', label: 'Discord Intern-Role Bonus', supply: 200,  defaultPct: 0.5 },
-    { key: 'kaito',      label: 'Kaito Yapper',             supply: 1000,  defaultPct: 0.5 },
-  ];
-  const [bonuses, setBonuses] = useState(
-    bonusDefs.map(b => ({ ...b, selected: false, pct: b.defaultPct }))
-  );
-  const handleBonusToggle = (key, sel) =>
-    setBonuses(bs => bs.map(b => b.key === key ? { ...b, selected: sel } : b));
+  const handleBonusToggle = (key, selected) =>
+    setBonuses(bs => bs.map(b => b.key === key ? { ...b, selected } : b));
   const handleBonusPct = (key, pct) =>
     setBonuses(bs => bs.map(b => b.key === key ? { ...b, pct } : b));
 
@@ -44,29 +40,28 @@ export default function App() {
       fetchTheoPoints(address),
       fetchTestnetData(address),
     ])
-      .then(([expList, theo, testnet]) => setAssets([...expList, theo, testnet]))
+      .then(([expList, theo, testnet]) => {
+        setAssets([...expList, theo, testnet]);
+      })
       .catch(err => setError(err.message))
       .finally(() => setLoading(false));
   }, [address]);
 
-  // categorize
   const expeditionAssets = assets.filter(a =>
     ['weETH','ezETH','weETHs','unibtc','unieth','cmeth'].includes(a.asset)
   );
   const theoAsset    = assets.find(a => a.asset === 'Theo Vault');
   const testnetAsset = assets.find(a => a.asset === 'Testnet $MITO');
 
-  // points display
   const totalExpPoints = expeditionAssets.reduce((sum,a) => sum + a.points, 0);
   const displayExpPoints     = Math.floor(totalExpPoints).toLocaleString('fr-FR');
   const displayTheoPoints    = theoAsset    ? Math.floor(theoAsset.points).toLocaleString('fr-FR') : '0';
   const displayTestnetPoints = testnetAsset ? Math.floor(testnetAsset.points).toLocaleString('fr-FR') : '0';
 
-  // USD allocations
-  const expeditionUSD  = (expPct/100) * FDV_USD;
-  const theoUSD        = (theoPct/100) * FDV_USD;
-  const testnetUSD     = (testPct/100) * FDV_USD;
-  const additionalUSD  = bonuses
+  const expeditionUSD = (expPct/100) * FDV_USD;
+  const theoUSD       = (theoPct/100) * FDV_USD;
+  const testnetUSD    = (testPct/100) * FDV_USD;
+  const additionalUSD = bonuses
     .filter(b => b.selected)
     .reduce((sum, b) => sum + (b.pct/100) * FDV_USD / b.supply, 0);
   const totalUSD = expeditionUSD + theoUSD + testnetUSD + additionalUSD;
@@ -93,63 +88,52 @@ export default function App() {
 
         {!loading && !error && assets.length > 0 && (
           <>
-            {/* Layout: left (Theo, Testnet, Additional) & right (Expedition) */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-              {/* Left column */}
-              <div className="flex flex-col items-center space-y-8">
-                {/* Theo Vault */}
+            {/* Theo Vault, Testnet, Additional on LEFT */}
+            <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-10">
+              <div className="flex flex-col space-y-8">
                 {theoAsset && (
                   <AllocationCard
                     asset={theoAsset.asset}
                     points={theoAsset.points}
-                    rank={null}
-                    tier={null}
                     showSlider
                     pct={theoPct}
                     onPctChange={setTheoPct}
                   />
                 )}
-                {/* Testnet */}
                 {testnetAsset && (
                   <AllocationCard
                     asset={testnetAsset.asset}
                     points={testnetAsset.points}
                     rank={testnetAsset.rank}
-                    tier={null}
                     showSlider
                     pct={testPct}
                     onPctChange={setTestPct}
                   />
                 )}
-                {/* Additional Rewards (no Points line) */}
+                {/* Additional Rewards */}
                 <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 w-full space-y-4">
                   <h2 className="text-xl font-semibold text-gray-200">
                     Additional Rewards
                   </h2>
-                  {bonuses.map(b => b.selected && (
-                    <div key={b.key} className="flex items-center justify-between">
-                      <p className="text-white">{b.label}</p>
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="range"
-                          min="0"
-                          max="100"
-                          step="0.1"
-                          value={b.pct}
-                          onChange={e => handleBonusPct(b.key, Number(e.target.value))}
-                          className="w-24 accent-blue-500"
-                        />
-                        <span className="text-gray-200">{b.pct}%</span>
-                      </div>
-                    </div>
+                  {bonuses.map(b => (
+                    <AllocationCard
+                      key={b.key}
+                      asset={b.label}
+                      showCheckbox
+                      selected={b.selected}
+                      onToggle={sel => handleBonusToggle(b.key, sel)}
+                      showSlider={b.selected}
+                      pct={b.pct}
+                      onPctChange={p => handleBonusPct(b.key, p)}
+                      supply={b.supply}
+                    />
                   ))}
                 </div>
               </div>
 
-              {/* Right column */}
-              <div className="flex flex-col items-center space-y-8">
-                {/* Mitosis Expedition */}
-                <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 w-full space-y-4">
+              {/* Mitosis Expedition on RIGHT */}
+              <div className="flex flex-col space-y-8">
+                <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 w-full space-y-4 mx-auto">
                   <h2 className="text-xl font-semibold text-gray-200">
                     Mitosis Expedition
                   </h2>
