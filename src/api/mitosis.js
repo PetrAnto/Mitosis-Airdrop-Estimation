@@ -36,16 +36,27 @@ export async function fetchExpeditionBreakdown(address) {
 
 /**
  * Récupère la partie "Theo - Straddle Vault"
- * On n’y a pas de tier, on fixe à null
+ * L’API renvoie un tableau d’objets contenant chacun mitoPoints.
+ * On en fait la somme pour afficher un seul total.
  */
 export async function fetchTheoPoints(address) {
   const url = `https://matrix-proxy.mitomat.workers.dev/theo/portfolio/${address}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Erreur ${res.status} sur Theo Vault`);
   const json = await res.json();
+
+  // On s'assure d'avoir un tableau
+  const entries = Array.isArray(json) ? json : [json];
+
+  // Somme de tous les mitoPoints
+  const totalMitoPoints = entries.reduce((sum, e) => {
+    const pts = parseFloat(e.mitoPoints);
+    return sum + (isNaN(pts) ? 0 : pts);
+  }, 0);
+
   return {
     asset:  'Theo Vault',
-    points: parseFloat(json.mitoPoints) || 0,
+    points: totalMitoPoints,
     rank:   1,
     tier:   null,
   };
