@@ -36,8 +36,8 @@ const TESTNET_POOL_TOKENS = 30_954_838.28
 export default function App() {
   const [address, setAddress]   = useState('')
   const [assets, setAssets]     = useState([])
-  const [expPct, setExpPct]     = useState(10) // 0–15%, step 1
-  const [testPct, setTestPct]   = useState(5)  // 0–15%, step 1
+  const [expPct, setExpPct]     = useState(10) // default 10%
+  const [testPct, setTestPct]   = useState(5)  // default 5%
   const [bonuses, setBonuses]   = useState([
     { key:'morse',      label:'Morse NFT',               supply:2924,   selected:false, pct:1   },
     { key:'partner',    label:'NFT Partner Collections', supply:38888,  selected:false, pct:0.5 },
@@ -51,7 +51,8 @@ export default function App() {
 
   useEffect(() => {
     if (!address) return
-    setLoading(true); setError(null)
+    setLoading(true)
+    setError(null)
     Promise.all([
       fetchExpeditionBreakdown(address),
       fetchTheoPoints(address),
@@ -64,14 +65,14 @@ export default function App() {
       .finally(() => setLoading(false))
   }, [address])
 
-  // Extract categories
+  // Categories
   const expeditionAssets = assets.filter(a =>
     ['weETH','ezETH','weETHs','unibtc','unieth','cmeth'].includes(a.asset)
   )
-  const theoAsset    = assets.find(a => a.asset==='Theo Vault')
-  const testnetAsset = assets.find(a => a.asset==='Testnet $MITO')
+  const theoAsset    = assets.find(a => a.asset === 'Theo Vault')
+  const testnetAsset = assets.find(a => a.asset === 'Testnet $MITO')
 
-  // 1) Mitosis Expedition calculations
+  // 1) Mitosis Expedition
   const totalExpPoints   = expeditionAssets.reduce((s,a) => s + a.points, 0)
   const displayExpPoints = Math.floor(totalExpPoints).toLocaleString('fr-FR')
   const expeditionTierBoost = expeditionAssets.length
@@ -85,13 +86,12 @@ export default function App() {
   const displayTheoPoints = theoAsset
     ? Math.floor(theoAsset.points).toLocaleString('fr-FR')
     : '0'
-  const weETH = expeditionAssets.find(a => a.asset==='weETH')
+  const weETH = expeditionAssets.find(a => a.asset === 'weETH')
   const theoTier = weETH ? weETH.tier : 1
-  const theoSharePct = theoAsset
+  const theoSharePct  = theoAsset
     ? (theoAsset.points * TIER_BONUS[theoTier] / EXPEDITION_DENOM) * 100
     : 0
-  const theoPoolUsd = expeditionPoolUsd
-  const theoUSD     = Math.floor((theoSharePct / 100) * theoPoolUsd)
+  const theoUSD = Math.floor((theoSharePct / 100) * expeditionPoolUsd)
 
   // 3) Game of Mito Testnet
   const testnetUSD = testnetAsset
@@ -108,7 +108,8 @@ export default function App() {
       .filter(b => b.selected)
       .reduce((sum,b) => sum + (b.pct / 100) * fdvUsd / b.supply, 0)
   )
-  const totalBonusPct = bonuses.filter(b => b.selected).reduce((s,b) => s + b.pct, 0)
+  // sum of all bonus % whether checked or not
+  const totalBonusPct = bonuses.reduce((s,b) => s + b.pct, 0)
 
   // Totals
   const totalUSD        = expeditionUSD + theoUSD + testnetUSD + additionalUSD
@@ -166,13 +167,13 @@ export default function App() {
         </div>
 
         {loading && <p className="text-gray-400">Chargement…</p>}
-        {error   && <p className="text-red-500">Erreur : {error}</p>}
+        {error && <p className="text-red-500">Erreur : {error}</p>}
 
         {!loading && !error && assets.length > 0 && (
           <>
-            {/* Top cards: Testnet & Additional | Expedition & Theo Vault */}
+            {/* Top cards */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 justify-items-center">
-              {/* Left column */}
+              {/* Left: Testnet & Additional */}
               <div className="flex flex-col space-y-6 w-full max-w-md">
                 {/* Game of Mito Testnet */}
                 <div className="bg-gray-800 rounded-2xl shadow-lg p-4 space-y-2 w-full">
@@ -237,7 +238,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Right column */}
+              {/* Right: Expedition & Theo Vault */}
               <div className="flex flex-col space-y-6 w-full max-w-md">
                 {/* Mitosis Expedition */}
                 <div className="bg-gray-800 rounded-2xl shadow-lg p-4 w-full">
@@ -251,7 +252,7 @@ export default function App() {
                     <input
                       type="range"
                       min={0}
-                      max={15}
+                      max={20}
                       step={1}
                       value={expPct}
                       onChange={e => setExpPct(Number(e.target.value))}
@@ -290,7 +291,7 @@ export default function App() {
 
             {/* PieChart & Total Estimated Airdrop */}
             <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8 justify-items-center">
-              <div className="bg-gray-800 rounded-2xl shadow-lg p-6 h-[300px] w-full max-w-md">
+              <div className="bg-gray-800 rounded-2xl shadow-lg p-6 h-[360px] w-full max-w-md">
                 <h2 className="text-xl font-semibold mb-4 text-gray-200">
                   Allocation Breakdown (USD)
                 </h2>
@@ -315,7 +316,7 @@ export default function App() {
                   <p>• Testnet: ${testnetUSD.toLocaleString('fr-FR')}</p>
                   <p>• Additional Rewards: ${additionalUSD.toLocaleString('fr-FR')}</p>
                   <p className="pt-2 font-medium">
-                    Total % FDV of Airdrop: {totalAirdropPct}%
+                    Total % FDV for Airdrop: {totalAirdropPct}%  
                   </p>
                 </div>
               </div>
