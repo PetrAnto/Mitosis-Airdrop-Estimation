@@ -16,11 +16,11 @@ export default function App() {
   const [theoPct, setTheoPct] = useState(10);
   const [testPct, setTestPct] = useState(10);
   const [bonuses, setBonuses] = useState([
-    { key: 'morse',      label: 'Morse NFT',                supply: 2924,  selected: false, pct: 1   },
-    { key: 'partner',    label: 'NFT Partner Collections',  supply: 38888, selected: false, pct: 0.5 },
-    { key: 'discordMi',  label: 'Discord Mi-Role',          supply: 100,   selected: false, pct: 0.5 },
-    { key: 'discordInt', label: 'Discord Intern-Role Bonus', supply: 200,  selected: false, pct: 0.5 },
-    { key: 'kaito',      label: 'Kaito Yapper',             supply: 1000,  selected: false, pct: 0.5 },
+    { key: 'morse',      label: 'Morse NFT',                 supply: 2924,  selected: false, pct: 1   },
+    { key: 'partner',    label: 'NFT Partner Collections',   supply: 38888, selected: false, pct: 0.5 },
+    { key: 'discordMi',  label: 'Discord Mi-Role',           supply: 100,   selected: false, pct: 0.5 },
+    { key: 'discordInt', label: 'Discord Intern-Role Bonus', supply: 200,   selected: false, pct: 0.5 },
+    { key: 'kaito',      label: 'Kaito Yapper',              supply: 1000,  selected: false, pct: 0.5 },
   ]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -40,9 +40,9 @@ export default function App() {
       fetchTheoPoints(address),
       fetchTestnetData(address),
     ])
-      .then(([expList, theo, testnet]) => {
-        setAssets([...expList, theo, testnet]);
-      })
+      .then(([expList, theo, testnet]) =>
+        setAssets([...expList, theo, testnet])
+      )
       .catch(err => setError(err.message))
       .finally(() => setLoading(false));
   }, [address]);
@@ -53,9 +53,9 @@ export default function App() {
   const theoAsset    = assets.find(a => a.asset === 'Theo Vault');
   const testnetAsset = assets.find(a => a.asset === 'Testnet $MITO');
 
-  const totalExpPoints = expeditionAssets.reduce((sum,a) => sum + a.points, 0);
+  const totalExpPoints = expeditionAssets.reduce((sum, a) => sum + a.points, 0);
   const displayExpPoints     = Math.floor(totalExpPoints).toLocaleString('fr-FR');
-  const displayTheoPoints    = theoAsset    ? Math.floor(theoAsset.points).toLocaleString('fr-FR') : '0';
+  const displayTheoPoints    = theoAsset ? Math.floor(theoAsset.points).toLocaleString('fr-FR') : '0';
   const displayTestnetPoints = testnetAsset ? Math.floor(testnetAsset.points).toLocaleString('fr-FR') : '0';
 
   const expeditionUSD = (expPct/100) * FDV_USD;
@@ -71,7 +71,7 @@ export default function App() {
       <Header />
 
       <main className="container mx-auto px-6 py-10 space-y-10">
-        {/* Wallet input */}
+        {/* Wallet address */}
         <div>
           <label className="block text-gray-300 mb-2">Wallet address</label>
           <input
@@ -88,9 +88,10 @@ export default function App() {
 
         {!loading && !error && assets.length > 0 && (
           <>
-            {/* Theo Vault, Testnet, Additional on LEFT */}
-            <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-10">
-              <div className="flex flex-col space-y-8">
+            {/* Layout: left (Theo, Testnet, Additional) & right (Expedition) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+              {/* Left column */}
+              <div className="flex flex-col items-center space-y-8">
                 {theoAsset && (
                   <AllocationCard
                     asset={theoAsset.asset}
@@ -122,7 +123,7 @@ export default function App() {
                       showCheckbox
                       selected={b.selected}
                       onToggle={sel => handleBonusToggle(b.key, sel)}
-                      showSlider={b.selected}
+                      showSlider
                       pct={b.pct}
                       onPctChange={p => handleBonusPct(b.key, p)}
                       supply={b.supply}
@@ -131,9 +132,9 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Mitosis Expedition on RIGHT */}
-              <div className="flex flex-col space-y-8">
-                <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 w-full space-y-4 mx-auto">
+              {/* Right column: Expedition */}
+              <div className="flex flex-col items-center space-y-8">
+                <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 w-full space-y-4">
                   <h2 className="text-xl font-semibold text-gray-200">
                     Mitosis Expedition
                   </h2>
