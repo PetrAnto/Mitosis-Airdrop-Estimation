@@ -18,19 +18,19 @@ const TESTNET_POOL_TOKENS = 30_954_838.28
 export default function App() {
   const [address, setAddress] = useState('')
   const [assets, setAssets] = useState([])
-  const [expPct, setExpPct] = useState(15)
-  const [theoPct, setTheoPct] = useState(10)
-  const [testPct, setTestPct] = useState(10)
-  const [bonuses, setBonuses] = useState([
+  const [expPct,   setExpPct]   = useState(15)
+  const [theoPct,  setTheoPct]  = useState(10)
+  const [testPct,  setTestPct]  = useState(10)
+  const [bonuses,  setBonuses]  = useState([
     { key: 'morse',      label: 'Morse NFT',                 supply: 2924,  selected: false, pct: 1   },
     { key: 'partner',    label: 'NFT Partner Collections',   supply: 38888, selected: false, pct: 0.5 },
     { key: 'discordMi',  label: 'Discord Mi-Role',           supply: 100,   selected: false, pct: 0.5 },
     { key: 'discordInt', label: 'Discord Intern-Role Bonus', supply: 200,   selected: false, pct: 0.5 },
     { key: 'kaito',      label: 'Kaito Yapper',              supply: 1000,  selected: false, pct: 0.5 },
   ])
-  const [fdvUsd, setFdvUsd] = useState(150_000_000)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [fdvUsd,   setFdvUsd]   = useState(150_000_000)
+  const [loading,  setLoading]  = useState(false)
+  const [error,    setError]    = useState(null)
 
   const FDV_USD = fdvUsd
 
@@ -48,7 +48,9 @@ export default function App() {
       fetchTheoPoints(address),
       fetchTestnetData(address),
     ])
-      .then(([expList, theo, testnet]) => setAssets([...expList, theo, testnet]))
+      .then(([expList, theo, testnet]) =>
+        setAssets([...expList, theo, testnet])
+      )
       .catch(err => setError(err.message))
       .finally(() => setLoading(false))
   }, [address])
@@ -59,39 +61,26 @@ export default function App() {
   const theoAsset    = assets.find(a => a.asset === 'Theo Vault')
   const testnetAsset = assets.find(a => a.asset === 'Testnet $MITO')
 
-  // 1) Expedition points total & affichage
-  const totalExpPoints   = expeditionAssets.reduce((s,a) => s + a.points, 0)
+  // 1) Expedition
+  const totalExpPoints   = expeditionAssets.reduce((s, a) => s + a.points, 0)
   const displayExpPoints = Math.floor(totalExpPoints).toLocaleString('fr-FR')
-
-  // 2) Bonus de tier pour Expedition (max des assets)
   const expeditionTierBonus = expeditionAssets.length
     ? Math.max(...expeditionAssets.map(a => TIER_BONUS[a.tier] || 1))
     : 1
+  const expeditionSharePct  = (totalExpPoints * expeditionTierBonus / EXPEDITION_DENOM) * 100
+  const expeditionPoolUsd   = (expPct / 100) * FDV_USD
+  const expeditionUSD       = Math.floor(expeditionSharePct / 100 * expeditionPoolUsd)
 
-  // 3) % de part Expedition
-  const expeditionSharePct =
-    (totalExpPoints * expeditionTierBonus / EXPEDITION_DENOM) * 100
-
-  // 4) USD pool Expedition & allocation
-  const expeditionPoolUsd = (expPct / 100) * FDV_USD
-  const expeditionUSD     = Math.floor(expeditionSharePct / 100 * expeditionPoolUsd)
-
-  // === NOUVEAU pour Theo Vault ===
-  // 5) boost de tier basé sur weETH
-  const weETHAsset    = expeditionAssets.find(a => a.asset === 'weETH')
+  // 2) Theo Vault (même formule que Expedition avec boost weETH)
+  const weETHAsset   = expeditionAssets.find(a => a.asset === 'weETH')
   const theoTierBoost = weETHAsset ? TIER_BONUS[weETHAsset.tier] : 1
-
-  // 6) % de part Theo Vault
-  const theoSharePct = theoAsset
+  const theoSharePct  = theoAsset
     ? (theoAsset.points * theoTierBoost / EXPEDITION_DENOM) * 100
     : 0
+  const theoPoolUsd   = (theoPct / 100) * FDV_USD
+  const theoUSD       = Math.floor(theoSharePct / 100 * theoPoolUsd)
 
-  // 7) USD pool Theo Vault & allocation
-  const theoPoolUsd = (theoPct / 100) * FDV_USD
-  const theoUSD     = Math.floor(theoSharePct / 100 * theoPoolUsd)
-
-  // === Testnet ===
-  // 8) USD Testnet selon votre formule demandée
+  // 3) Testnet
   const testnetUSD = testnetAsset
     ? Math.floor(
         (testnetAsset.points / TESTNET_POOL_TOKENS)
@@ -100,16 +89,16 @@ export default function App() {
       )
     : 0
 
-  // === Additional Rewards ===
+  // 4) Additional Rewards
   const additionalUSD = Math.floor(
     bonuses
       .filter(b => b.selected)
-      .reduce((s,b) => s + (b.pct/100) * FDV_USD / b.supply, 0)
+      .reduce((s, b) => s + (b.pct / 100) * FDV_USD / b.supply, 0)
   )
 
-  // Totaux finaux
-  const totalUSD       = expeditionUSD + theoUSD + testnetUSD + additionalUSD
-  const totalBonusPct  = bonuses.filter(b => b.selected).reduce((s,b) => s + b.pct, 0)
+  // Totaux
+  const totalUSD        = expeditionUSD + theoUSD + testnetUSD + additionalUSD
+  const totalBonusPct   = bonuses.filter(b => b.selected).reduce((s, b) => s + b.pct, 0)
   const totalAirdropPct = (expPct + theoPct + testPct + totalBonusPct).toFixed(1)
 
   return (
@@ -153,7 +142,7 @@ export default function App() {
         </div>
 
         {loading && <p className="text-gray-400">Chargement…</p>}
-        {error && <p className="text-red-500">Erreur : {error}</p>}
+        {error   && <p className="text-red-500">Erreur : {error}</p>}
 
         {!loading && !error && assets.length > 0 && (
           <>
@@ -173,7 +162,8 @@ export default function App() {
                 {testnetAsset && (
                   <AllocationCard
                     asset="Testnet $MITO"
-                    points={Math.floor(testnetAsset.points).toLocaleString('fr-FR')}
+                    points={testnetAsset.points}
+                    rank={testnetAsset.rank}
                     showSlider
                     pct={testPct}
                     onPctChange={setTestPct}
