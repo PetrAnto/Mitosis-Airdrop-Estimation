@@ -3,33 +3,36 @@ import Header from './components/Header';
 import PieChart from './components/PieChart';
 
 export default function App() {
+  // Inputs utilisateur
   const [expeditionPoints, setExpeditionPoints] = useState(0);
   const [testnetPoints, setTestnetPoints] = useState(0);
   const [expeditionPct, setExpeditionPct] = useState(15);
   const [testnetPct, setTestnetPct] = useState(10);
 
-  // On utilise directement les % pour le graphique
-  const additionalPct = Math.max(0, 100 - expeditionPct - testnetPct);
+  // Constantes du simulateur
+  const FDV_USD = 150 * 1_000_000;
+  const expeditionTotalPoints = 194_000_000_000;
+  const testnetTotalPoints = 1_000_000;
 
-  const pieData = {
-    labels: ['Expedition', 'Testnet', 'Additional'],
-    datasets: [
-      {
-        data: [expeditionPct, testnetPct, additionalPct],
-        backgroundColor: ['#4ade80', '#60a5fa', '#facc15'],
-        borderWidth: 0,
-      },
-    ],
-  };
+  // Calcul de l’allocation en USD
+  const expeditionAllocation =
+    (expeditionPoints / expeditionTotalPoints) *
+    FDV_USD *
+    (expeditionPct / 100);
+  const testnetAllocation =
+    (testnetPoints / testnetTotalPoints) *
+    FDV_USD *
+    (testnetPct / 100);
+  const totalAllocation = expeditionAllocation + testnetAllocation;
 
   return (
     <div className="min-h-screen bg-black text-white font-sans">
       <Header />
 
       <main className="container mx-auto px-6 py-10 space-y-10">
-        {/* Inputs Expedition / Testnet */}
+        {/* Formulaire inputs */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Expedition Card */}
+          {/* Expedition Campaign */}
           <div className="bg-gray-800 rounded-2xl shadow-lg p-6 flex flex-col">
             <h2 className="text-xl font-semibold text-gray-200 mb-4">
               Expedition Campaign
@@ -56,7 +59,7 @@ export default function App() {
             <div className="text-gray-200">{expeditionPct}%</div>
           </div>
 
-          {/* Testnet Card */}
+          {/* Game of Mito Testnet */}
           <div className="bg-gray-800 rounded-2xl shadow-lg p-6 flex flex-col">
             <h2 className="text-xl font-semibold text-gray-200 mb-4">
               Game of Mito Testnet
@@ -84,23 +87,26 @@ export default function App() {
           </div>
         </div>
 
-        {/* Chart + Total */}
+        {/* Pie Chart + Total */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Pie Chart */}
+          {/* Allocation Breakdown */}
           <div className="bg-gray-800 rounded-2xl shadow-lg p-6 h-[400px]">
             <h2 className="text-xl font-semibold text-gray-200 mb-4">
-              Allocation Breakdown
+              Allocation Breakdown (USD)
             </h2>
-            <PieChart data={pieData} options={{}} />
+            <PieChart
+              expeditionAllocation={expeditionAllocation}
+              testnetAllocation={testnetAllocation}
+            />
           </div>
 
-          {/* Total Allocation */}
+          {/* Total Airdrop */}
           <div className="bg-gray-700 rounded-2xl shadow-lg p-6 flex flex-col justify-center items-center">
             <h2 className="text-lg font-bold text-gray-200 mb-2">
-              Total % of FDV Allocated
+              Total Estimated Airdrop
             </h2>
             <p className="text-3xl font-semibold">
-              { (expeditionPct + testnetPct).toFixed(2) }%
+              ${totalAllocation.toFixed(2)}
             </p>
           </div>
         </div>
