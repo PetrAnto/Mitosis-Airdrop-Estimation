@@ -13,8 +13,7 @@ const ASSET_ENDPOINTS = {
 const ASSETS = Object.keys(ASSET_ENDPOINTS);
 
 /**
- * Récupère pour chaque asset { asset, points, rank, tier }
- * points = item.totalPoints, rank = item.rank, tier = item.tier
+ * Récupère { asset, points, rank, tier } pour chaque asset Expedition
  */
 export async function fetchExpeditionBreakdown(address) {
   const promises = ASSETS.map(async (asset) => {
@@ -36,28 +35,41 @@ export async function fetchExpeditionBreakdown(address) {
 
 /**
  * Récupère la partie "Theo - Straddle Vault"
- * L’API renvoie un tableau d’objets contenant chacun mitoPoints.
- * On en fait la somme pour afficher un seul total.
+ * Somme de tous les mitoPoints du tableau
  */
 export async function fetchTheoPoints(address) {
   const url = `https://matrix-proxy.mitomat.workers.dev/theo/portfolio/${address}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Erreur ${res.status} sur Theo Vault`);
   const json = await res.json();
-
-  // On s'assure d'avoir un tableau
   const entries = Array.isArray(json) ? json : [json];
-
-  // Somme de tous les mitoPoints
   const totalMitoPoints = entries.reduce((sum, e) => {
     const pts = parseFloat(e.mitoPoints);
     return sum + (isNaN(pts) ? 0 : pts);
   }, 0);
-
   return {
     asset:  'Theo Vault',
     points: totalMitoPoints,
     rank:   1,
+    tier:   null,
+  };
+}
+
+/**
+ * Récupère les données Testnet MITO pour un wallet
+ * via https://mito-api.customrpc.workers.dev/api/wallet/{address}
+ * et renvoie { points: total_balance, rank }
+ */
+export async function fetchTestnetData(address) {
+  const url = `https://mito-api.customrpc.workers.dev/api/wallet/${address}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Erreur ${res.status} sur Testnet API`);
+  const json = await res.json();
+  const data = json.data || {};
+  return {
+    asset:  'Testnet $MITO',
+    points: parseFloat(data.total_balance) || 0,
+    rank:   data.rank || 0,
     tier:   null,
   };
 }
