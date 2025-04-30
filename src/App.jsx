@@ -44,10 +44,7 @@ export default function App() {
       },
     ],
   };
-  const pieOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-  };
+  const pieOptions = {};
 
   return (
     <div className="min-h-screen bg-black text-white font-sans">
@@ -67,7 +64,8 @@ export default function App() {
               type="number"
               value={expeditionPoints}
               onChange={(e) => setExpeditionPoints(Number(e.target.value))}
-              className="w-full p-2 rounded-md mb-4 text-black"
+              placeholder="0"
+              className="w-full p-2 mb-4 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
 
             <label className="text-gray-400 mb-2">% of FDV</label>
@@ -77,7 +75,7 @@ export default function App() {
               max="20"
               value={expeditionPct}
               onChange={(e) => setExpeditionPct(Number(e.target.value))}
-              className="w-full mb-2"
+              className="w-full mb-2 accent-blue-500"
             />
             <div className="text-gray-200">{expeditionPct}%</div>
           </div>
@@ -93,7 +91,8 @@ export default function App() {
               type="number"
               value={testnetPoints}
               onChange={(e) => setTestnetPoints(Number(e.target.value))}
-              className="w-full p-2 rounded-md mb-4 text-black"
+              placeholder="0"
+              className="w-full p-2 mb-4 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
 
             <label className="text-gray-400 mb-2">% of FDV</label>
@@ -103,7 +102,7 @@ export default function App() {
               max="20"
               value={testnetPct}
               onChange={(e) => setTestnetPct(Number(e.target.value))}
-              className="w-full mb-2"
+              className="w-full mb-2 accent-blue-500"
             />
             <div className="text-gray-200">{testnetPct}%</div>
           </div>
