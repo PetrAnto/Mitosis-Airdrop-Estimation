@@ -22,11 +22,10 @@ export default function App() {
     { key: 'discordInt', label: 'Discord Intern-Role Bonus', supply: 200,   selected: false, pct: 0.5 },
     { key: 'kaito',      label: 'Kaito Yapper',              supply: 1000,  selected: false, pct: 0.5 },
   ]);
+  const [fdvUsd, setFdvUsd] = useState(150_000_000);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // FDV dynamic slider
-  const [fdvUsd, setFdvUsd] = useState(150_000_000);
   const FDV_USD = fdvUsd;
 
   const handleBonusToggle = (key, selected) =>
@@ -61,7 +60,7 @@ export default function App() {
   const displayTheoPoints    = theoAsset    ? Math.floor(theoAsset.points).toLocaleString('fr-FR') : '0';
   const displayTestnetPoints = testnetAsset ? Math.floor(testnetAsset.points).toLocaleString('fr-FR') : '0';
 
-  // Compute USD allocations
+  // USD calculations
   const expeditionUSDRaw  = (expPct/100) * FDV_USD;
   const theoUSDRaw        = (theoPct/100) * FDV_USD;
   const testnetUSDRaw     = (testPct/100) * FDV_USD;
@@ -75,11 +74,13 @@ export default function App() {
   const additionalUSD = Math.floor(additionalUSDRaw);
   const totalUSD      = expeditionUSD + theoUSD + testnetUSD + additionalUSD;
 
-  // total bonus %
+  // Total bonuses %
   const totalBonusPct = bonuses
     .filter(b => b.selected)
-    .reduce((sum,b) => sum + b.pct, 0)
-    .toFixed(1);
+    .reduce((sum,b) => sum + b.pct, 0);
+
+  // Total airdrop % FDV
+  const totalAirdropPct = (expPct + theoPct + testPct + totalBonusPct).toFixed(1);
 
   return (
     <div className="min-h-screen bg-black text-white font-sans">
@@ -105,7 +106,7 @@ export default function App() {
       </div>
 
       <main className="container mx-auto px-6 py-4 space-y-10">
-        {/* Wallet input */}
+        {/* Wallet address */}
         <div>
           <label className="block text-gray-300 mb-2">Wallet address</label>
           <input
@@ -146,9 +147,7 @@ export default function App() {
                   />
                 )}
                 <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-4 w-full space-y-2">
-                  <h2 className="text-xl font-semibold mb-2 text-gray-200">
-                    Additional Rewards
-                  </h2>
+                  <h2 className="text-xl font-semibold mb-2 text-gray-200">Additional Rewards</h2>
                   {bonuses.map(b => (
                     <div key={b.key} className="flex items-center justify-between">
                       <label className="flex items-center space-x-2 text-sm">
@@ -176,7 +175,7 @@ export default function App() {
                   ))}
                   <div className="border-t border-gray-600 pt-2">
                     <p className="text-gray-200 text-sm">
-                      Total Bonus % FDV: {totalBonusPct}%
+                      Total Bonus % FDV: {totalBonusPct.toFixed(1)}%
                     </p>
                   </div>
                 </div>
@@ -185,9 +184,7 @@ export default function App() {
               {/* Right: Expedition */}
               <div className="flex flex-col space-y-6">
                 <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-4 w-full space-y-3">
-                  <h2 className="text-xl font-semibold text-gray-200">
-                    Mitosis Expedition
-                  </h2>
+                  <h2 className="text-xl font-semibold text-gray-200">Mitosis Expedition</h2>
                   <p className="text-white font-bold mb-2">
                     Total Expedition Points: {displayExpPoints}
                   </p>
@@ -245,7 +242,7 @@ export default function App() {
                 <h2 className="text-lg font-bold text-gray-200 mb-2">
                   Total Estimated Airdrop
                 </h2>
-                <p className="text-3xl font-semibold mb-4">
+                <p className="text-3xl font-semibold mb-2">
                   ${totalUSD.toLocaleString('fr-FR')}
                 </p>
                 <div className="space-y-1 text-gray-200 text-sm">
@@ -253,6 +250,9 @@ export default function App() {
                   <p>• Theo Vault: ${theoUSD.toLocaleString('fr-FR')}</p>
                   <p>• Testnet: ${testnetUSD.toLocaleString('fr-FR')}</p>
                   <p>• Additional Rewards: ${additionalUSD.toLocaleString('fr-FR')}</p>
+                  <p className="pt-2 font-medium">
+                    Total % FDV of Airdrop: {totalAirdropPct}%
+                  </p>
                 </div>
               </div>
             </div>
