@@ -19,7 +19,7 @@ export default function AllocationCard({
   const displayPoints = Math.floor(points);
 
   return (
-    <div className="w-[70%] bg-gray-800 rounded-2xl shadow-lg p-6 flex flex-col space-y-2">
+    <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 flex flex-col space-y-2">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
         <h2 className="text-lg font-semibold text-gray-200">{asset}</h2>
         <div className="flex items-center space-x-4">
@@ -42,7 +42,7 @@ export default function AllocationCard({
       </div>
 
       <p className="text-gray-400 text-xs">
-        (Points arrondis à l’entier inférieur)
+        Points: {displayPoints.toLocaleString('fr-FR')}
       </p>
     </div>
   );
