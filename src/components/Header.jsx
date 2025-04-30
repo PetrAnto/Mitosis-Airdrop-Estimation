@@ -7,9 +7,9 @@ export default function Header() {
         <img
           src="/petrantocalculator.png"
           alt="Logo MITO"
-          className="h-10 w-auto"
+          className="h-16 md:h-20 w-auto"
         />
-        <h1 className="text-2xl font-bold text-white">
+        <h1 className="text-2xl md:text-3xl font-bold text-white">
           Mitosis Airdrop Estimator
         </h1>
       </div>
