@@ -28,6 +28,7 @@ export default function App() {
 
   const handleBonusToggle = (key, selected) =>
     setBonuses(bs => bs.map(b => b.key === key ? { ...b, selected } : b));
+
   const handleBonusPct = (key, pct) =>
     setBonuses(bs => bs.map(b => b.key === key ? { ...b, pct } : b));
 
@@ -40,9 +41,7 @@ export default function App() {
       fetchTheoPoints(address),
       fetchTestnetData(address),
     ])
-      .then(([expList, theo, testnet]) =>
-        setAssets([...expList, theo, testnet])
-      )
+      .then(([expList, theo, testnet]) => setAssets([...expList, theo, testnet]))
       .catch(err => setError(err.message))
       .finally(() => setLoading(false));
   }, [address]);
@@ -53,9 +52,9 @@ export default function App() {
   const theoAsset    = assets.find(a => a.asset === 'Theo Vault');
   const testnetAsset = assets.find(a => a.asset === 'Testnet $MITO');
 
-  const totalExpPoints = expeditionAssets.reduce((sum, a) => sum + a.points, 0);
+  const totalExpPoints = expeditionAssets.reduce((sum,a) => sum + a.points, 0);
   const displayExpPoints     = Math.floor(totalExpPoints).toLocaleString('fr-FR');
-  const displayTheoPoints    = theoAsset ? Math.floor(theoAsset.points).toLocaleString('fr-FR') : '0';
+  const displayTheoPoints    = theoAsset    ? Math.floor(theoAsset.points).toLocaleString('fr-FR') : '0';
   const displayTestnetPoints = testnetAsset ? Math.floor(testnetAsset.points).toLocaleString('fr-FR') : '0';
 
   const expeditionUSD = (expPct/100) * FDV_USD;
@@ -65,6 +64,11 @@ export default function App() {
     .filter(b => b.selected)
     .reduce((sum, b) => sum + (b.pct/100) * FDV_USD / b.supply, 0);
   const totalUSD = expeditionUSD + theoUSD + testnetUSD + additionalUSD;
+
+  const totalBonusPct = bonuses
+    .filter(b => b.selected)
+    .reduce((sum, b) => sum + b.pct, 0)
+    .toFixed(1);
 
   return (
     <div className="min-h-screen bg-black text-white font-sans">
@@ -88,10 +92,9 @@ export default function App() {
 
         {!loading && !error && assets.length > 0 && (
           <>
-            {/* Layout: left (Theo, Testnet, Additional) & right (Expedition) */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-              {/* Left column */}
-              <div className="flex flex-col items-center space-y-8">
+              {/* Left: Theo Vault, Testnet, Additional */}
+              <div className="flex flex-col space-y-6">
                 {theoAsset && (
                   <AllocationCard
                     asset={theoAsset.asset}
@@ -111,35 +114,48 @@ export default function App() {
                     onPctChange={setTestPct}
                   />
                 )}
-                {/* Additional Rewards */}
-                <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 w-full space-y-4">
-                  <h2 className="text-xl font-semibold text-gray-200">
-                    Additional Rewards
-                  </h2>
+                {/* Compact Additional Rewards */}
+                <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-4 w-full">
+                  <h2 className="text-xl font-semibold mb-2">Additional Rewards</h2>
                   {bonuses.map(b => (
-                    <AllocationCard
-                      key={b.key}
-                      asset={b.label}
-                      showCheckbox
-                      selected={b.selected}
-                      onToggle={sel => handleBonusToggle(b.key, sel)}
-                      showSlider
-                      pct={b.pct}
-                      onPctChange={p => handleBonusPct(b.key, p)}
-                      supply={b.supply}
-                    />
+                    <div key={b.key} className="flex items-center justify-between mb-2">
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          checked={b.selected}
+                          onChange={e => handleBonusToggle(b.key, e.target.checked)}
+                          className="accent-blue-500"
+                        />
+                        <span className="text-white text-sm">{b.label}</span>
+                      </label>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="range"
+                          min="0"
+                          max="5"
+                          step="0.1"
+                          value={b.pct}
+                          onChange={e => handleBonusPct(b.key, Number(e.target.value))}
+                          className="w-20 accent-blue-500"
+                        />
+                        <span className="text-gray-200 text-sm">{b.pct}%</span>
+                      </div>
+                    </div>
                   ))}
+                  <div className="border-t border-gray-600 pt-2">
+                    <p className="text-gray-200 text-sm">
+                      Total Bonus % FDV: {totalBonusPct}%
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              {/* Right column: Expedition */}
-              <div className="flex flex-col items-center space-y-8">
-                <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 w-full space-y-4">
-                  <h2 className="text-xl font-semibold text-gray-200">
-                    Mitosis Expedition
-                  </h2>
-                  <p className="text-white font-bold">
-                    Total Expedition Points : {displayExpPoints}
+              {/* Right: Mitosis Expedition */}
+              <div className="flex flex-col space-y-6">
+                <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 w-full">
+                  <h2 className="text-xl font-semibold mb-2">Mitosis Expedition</h2>
+                  <p className="text-white font-bold mb-2">
+                    Total Expedition Points: {displayExpPoints}
                   </p>
                   <label className="text-gray-400">% of FDV</label>
                   <input
@@ -148,18 +164,18 @@ export default function App() {
                     max="100"
                     value={expPct}
                     onChange={e => setExpPct(Number(e.target.value))}
-                    className="w-full accent-blue-500"
+                    className="w-full accent-blue-500 mb-2"
                   />
-                  <div className="text-gray-200">{expPct}%</div>
-                  <div className="space-y-3 pt-4">
+                  <div className="text-gray-200 mb-4">{expPct}%</div>
+                  <div className="space-y-2">
                     {expeditionAssets.map(a => (
                       <div key={a.asset} className="space-y-1">
                         <p className="text-gray-200 font-medium">{a.asset}</p>
-                        <p className="text-white">
-                          Points : {Math.floor(a.points).toLocaleString('fr-FR')}
+                        <p className="text-white text-sm">
+                          Points: {Math.floor(a.points).toLocaleString('fr-FR')}
                         </p>
-                        <p className="text-gray-400 text-sm">
-                          Tier : {a.tier === 1
+                        <p className="text-gray-400 text-xs">
+                          Tier: {a.tier === 1
                             ? 'Bronze'
                             : a.tier === 2
                             ? 'Silver'
@@ -179,8 +195,8 @@ export default function App() {
             </div>
 
             {/* PieChart & Total USD */}
-            <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 h-[400px] w-full mx-auto">
+            <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 h-[360px] w-full mx-auto">
                 <h2 className="text-xl font-semibold text-gray-200 mb-4">
                   Allocation Breakdown (USD)
                 </h2>
