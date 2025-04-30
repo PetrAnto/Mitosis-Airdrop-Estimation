@@ -7,15 +7,15 @@ import {
 } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
 
-// Enregistrer une seule fois les composants Chart.js
+// Enregistre une fois pour toutes les composants Chart.js
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-export default function PieChart({ expeditionAllocation, testnetAllocation }) {
+export default function PieChart({ expeditionUSD, testnetUSD }) {
   const data = {
-    labels: ['Expedition', 'Testnet'],
+    labels: ['Expedition USD', 'Testnet USD'],
     datasets: [
       {
-        data: [expeditionAllocation, testnetAllocation],
+        data: [expeditionUSD, testnetUSD],
         backgroundColor: ['#4ade80', '#60a5fa'],
         borderWidth: 0,
       },
