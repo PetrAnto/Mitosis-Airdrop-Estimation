@@ -1,6 +1,6 @@
 // src/api/mitosis.js
 
-// Mapping des assets -> baseURL correcte pour l’expedition-rank
+// Mapping des assets → URL d’expedition-rank par asset
 const ASSET_ENDPOINTS = {
   weETH:   'https://workermito.mitoapi.workers.dev/expedition-rank',
   ezETH:   'https://workermito.mitov7.workers.dev/expedition-rank',
@@ -13,8 +13,8 @@ const ASSET_ENDPOINTS = {
 const ASSETS = Object.keys(ASSET_ENDPOINTS);
 
 /**
- * Pour chaque asset, récupère { asset, points, rank } via l’endpoint dédié.
- * Retourne une Promise< Array<{ asset, points, rank }> >
+ * Récupère pour chaque asset { asset, points, rank }
+ * où points = item.totalPoints, rank = item.rank
  */
 export async function fetchExpeditionBreakdown(address) {
   const promises = ASSETS.map(async (asset) => {
@@ -25,11 +25,11 @@ export async function fetchExpeditionBreakdown(address) {
       throw new Error(`Erreur ${res.status} sur ${asset}`);
     }
     const json = await res.json();
-    // On suppose la réponse { points: number, rank: number, ... }
+    const item = json.item || {};
     return {
       asset,
-      points: json.points ?? 0,
-      rank:   json.rank   ?? 0,
+      points: parseFloat(item.totalPoints) || 0,
+      rank:   item.rank || 0,
     };
   });
 
@@ -38,7 +38,7 @@ export async function fetchExpeditionBreakdown(address) {
 
 /**
  * Récupère la partie "Theo - Straddle Vault"
- * Réponse supposée { points: number }
+ * Supposé répondre { points: number }
  */
 export async function fetchTheoPoints(address) {
   const url = `https://matrix-proxy.mitomat.workers.dev/theo/portfolio/${address}`;
@@ -50,6 +50,6 @@ export async function fetchTheoPoints(address) {
   return {
     asset:  'Theo Vault',
     points: json.points ?? 0,
-    rank:   1, // on fixe le rank à 1 pour cette source
+    rank:   1,
   };
 }
