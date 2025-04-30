@@ -9,6 +9,17 @@ import {
   fetchTestnetData,
 } from './api/mitosis';
 
+const TIER_BONUS = {
+  1: 1.0,
+  2: 1.2,
+  3: 1.5,
+  4: 2.0,
+  5: 3.0,
+};
+
+// Denominator = 225 000 000 000 points × average bonus 1.5
+const EXPEDITION_DENOM = 225_000_000_000 * 1.5; // = 337_500_000_000
+
 export default function App() {
   const [address, setAddress] = useState('');
   const [assets, setAssets] = useState([]);
@@ -49,37 +60,48 @@ export default function App() {
       .finally(() => setLoading(false));
   }, [address]);
 
+  // Catégories
   const expeditionAssets = assets.filter(a =>
     ['weETH','ezETH','weETHs','unibtc','unieth','cmeth'].includes(a.asset)
   );
   const theoAsset    = assets.find(a => a.asset === 'Theo Vault');
   const testnetAsset = assets.find(a => a.asset === 'Testnet $MITO');
 
+  // Totaux de points
   const totalExpPoints = expeditionAssets.reduce((sum,a) => sum + a.points, 0);
   const displayExpPoints     = Math.floor(totalExpPoints).toLocaleString('fr-FR');
   const displayTheoPoints    = theoAsset    ? Math.floor(theoAsset.points).toLocaleString('fr-FR') : '0';
   const displayTestnetPoints = testnetAsset ? Math.floor(testnetAsset.points).toLocaleString('fr-FR') : '0';
 
-  // USD calculations
-  const expeditionUSDRaw  = (expPct/100) * FDV_USD;
-  const theoUSDRaw        = (theoPct/100) * FDV_USD;
-  const testnetUSDRaw     = (testPct/100) * FDV_USD;
-  const additionalUSDRaw  = bonuses
+  // 1) Déterminer le bonus de tier pour Expedition (max parmi les assets)
+  const expeditionTierBonus = expeditionAssets.length
+    ? Math.max(...expeditionAssets.map(a => TIER_BONUS[a.tier] || 1))
+    : 1;
+
+  // 2) Calcul du % de part d'Expedition
+  // share% = (points × tierBonus) / EXPEDITION_DENOM × 100
+  const expeditionSharePct =
+    totalExpPoints * expeditionTierBonus / EXPEDITION_DENOM * 100;
+
+  // 3) Montant total dédié à Expedition
+  const T_exp = (expPct / 100) * FDV_USD;
+
+  // 4) Allocation USD Expedition
+  const expeditionUSD = Math.floor(expeditionSharePct / 100 * T_exp);
+
+  // Theo, Testnet, Additional (inchangés)
+  const theoUSD = Math.floor((theoPct / 100) * FDV_USD);
+  const testnetUSD = Math.floor((testPct / 100) * FDV_USD);
+  const additionalUSD = Math.floor(bonuses
     .filter(b => b.selected)
-    .reduce((sum,b) => sum + (b.pct/100)*FDV_USD/b.supply, 0);
+    .reduce((sum,b) => sum + (b.pct/100)*FDV_USD/b.supply, 0)
+  );
 
-  const expeditionUSD = Math.floor(expeditionUSDRaw);
-  const theoUSD       = Math.floor(theoUSDRaw);
-  const testnetUSD    = Math.floor(testnetUSDRaw);
-  const additionalUSD = Math.floor(additionalUSDRaw);
-  const totalUSD      = expeditionUSD + theoUSD + testnetUSD + additionalUSD;
-
-  // Total bonuses %
+  const totalUSD = expeditionUSD + theoUSD + testnetUSD + additionalUSD;
   const totalBonusPct = bonuses
     .filter(b => b.selected)
-    .reduce((sum,b) => sum + b.pct, 0);
-
-  // Total airdrop % FDV
+    .reduce((sum,b) => sum + b.pct, 0)
+    .toFixed(1);
   const totalAirdropPct = (expPct + theoPct + testPct + totalBonusPct).toFixed(1);
 
   return (
@@ -88,7 +110,7 @@ export default function App() {
 
       {/* Market Settings */}
       <div className="container mx-auto px-6 py-6">
-        <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-4 w-full mx-auto space-y-2">
+        <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-4 mx-auto space-y-2">
           <h2 className="text-xl font-semibold text-gray-200">Market Settings</h2>
           <label className="text-gray-400 text-sm">
             FDV (USD): {fdvUsd.toLocaleString('fr-FR')}$
@@ -106,7 +128,7 @@ export default function App() {
       </div>
 
       <main className="container mx-auto px-6 py-4 space-y-10">
-        {/* Wallet address */}
+        {/* Wallet input */}
         <div>
           <label className="block text-gray-300 mb-2">Wallet address</label>
           <input
@@ -124,7 +146,7 @@ export default function App() {
         {!loading && !error && assets.length > 0 && (
           <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-              {/* Left: Theo, Testnet, Additional */}
+              {/* Theo, Testnet, Additional */}
               <div className="flex flex-col space-y-6">
                 {theoAsset && (
                   <AllocationCard
@@ -146,8 +168,8 @@ export default function App() {
                     pointsLabel="Total Test $MITO :"
                   />
                 )}
-                <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-4 w-full space-y-2">
-                  <h2 className="text-xl font-semibold mb-2 text-gray-200">Additional Rewards</h2>
+                <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-4 space-y-2">
+                  <h2 className="text-xl font-semibold text-gray-200">Additional Rewards</h2>
                   {bonuses.map(b => (
                     <div key={b.key} className="flex items-center justify-between">
                       <label className="flex items-center space-x-2 text-sm">
@@ -175,17 +197,17 @@ export default function App() {
                   ))}
                   <div className="border-t border-gray-600 pt-2">
                     <p className="text-gray-200 text-sm">
-                      Total Bonus % FDV: {totalBonusPct.toFixed(1)}%
+                      Total Bonus % FDV: {totalBonusPct}%
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Right: Expedition */}
+              {/* Mitosis Expedition */}
               <div className="flex flex-col space-y-6">
-                <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-4 w-full space-y-3">
+                <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-4 space-y-3">
                   <h2 className="text-xl font-semibold text-gray-200">Mitosis Expedition</h2>
-                  <p className="text-white font-bold mb-2">
+                  <p className="text-white font-bold">
                     Total Expedition Points: {displayExpPoints}
                   </p>
                   <label className="text-gray-400 text-sm">% of FDV</label>
@@ -198,6 +220,9 @@ export default function App() {
                     className="w-full accent-blue-500 mb-2"
                   />
                   <div className="text-gray-200 text-sm mb-2">{expPct}%</div>
+                  <p className="text-gray-400 text-sm">
+                    Tier Bonus: {expeditionTierBonus.toFixed(1)}×
+                  </p>
                   <div className="space-y-1">
                     {expeditionAssets.map(a => (
                       <div key={a.asset}>
@@ -214,9 +239,7 @@ export default function App() {
                             ? 'Gold'
                             : a.tier === 4
                             ? 'Platinum'
-                            : a.tier === 5
-                            ? 'Diamond'
-                            : '-'}
+                            : 'Diamond'}
                         </p>
                       </div>
                     ))}
