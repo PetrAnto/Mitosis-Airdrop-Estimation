@@ -25,7 +25,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // FDV dynamic: slider between 50M and 1B
+  // FDV dynamic slider
   const [fdvUsd, setFdvUsd] = useState(150_000_000);
   const FDV_USD = fdvUsd;
 
@@ -50,27 +50,30 @@ export default function App() {
       .finally(() => setLoading(false));
   }, [address]);
 
-  // categorize
   const expeditionAssets = assets.filter(a =>
     ['weETH','ezETH','weETHs','unibtc','unieth','cmeth'].includes(a.asset)
   );
   const theoAsset    = assets.find(a => a.asset === 'Theo Vault');
   const testnetAsset = assets.find(a => a.asset === 'Testnet $MITO');
 
-  // formatted point totals
   const totalExpPoints = expeditionAssets.reduce((sum,a) => sum + a.points, 0);
   const displayExpPoints     = Math.floor(totalExpPoints).toLocaleString('fr-FR');
   const displayTheoPoints    = theoAsset    ? Math.floor(theoAsset.points).toLocaleString('fr-FR') : '0';
   const displayTestnetPoints = testnetAsset ? Math.floor(testnetAsset.points).toLocaleString('fr-FR') : '0';
 
-  // USD allocations
-  const expeditionUSD  = (expPct   / 100) * FDV_USD;
-  const theoUSD        = (theoPct  / 100) * FDV_USD;
-  const testnetUSD     = (testPct  / 100) * FDV_USD;
-  const additionalUSD  = bonuses
+  // Compute USD allocations
+  const expeditionUSDRaw  = (expPct/100) * FDV_USD;
+  const theoUSDRaw        = (theoPct/100) * FDV_USD;
+  const testnetUSDRaw     = (testPct/100) * FDV_USD;
+  const additionalUSDRaw  = bonuses
     .filter(b => b.selected)
-    .reduce((sum,b) => sum + (b.pct/100) * FDV_USD / b.supply, 0);
-  const totalUSD = expeditionUSD + theoUSD + testnetUSD + additionalUSD;
+    .reduce((sum,b) => sum + (b.pct/100)*FDV_USD/b.supply, 0);
+
+  const expeditionUSD = Math.floor(expeditionUSDRaw);
+  const theoUSD       = Math.floor(theoUSDRaw);
+  const testnetUSD    = Math.floor(testnetUSDRaw);
+  const additionalUSD = Math.floor(additionalUSDRaw);
+  const totalUSD      = expeditionUSD + theoUSD + testnetUSD + additionalUSD;
 
   // total bonus %
   const totalBonusPct = bonuses
@@ -102,7 +105,7 @@ export default function App() {
       </div>
 
       <main className="container mx-auto px-6 py-4 space-y-10">
-        {/* Wallet address */}
+        {/* Wallet input */}
         <div>
           <label className="block text-gray-300 mb-2">Wallet address</label>
           <input
@@ -120,7 +123,7 @@ export default function App() {
         {!loading && !error && assets.length > 0 && (
           <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-              {/* Left: Theo Vault, Testnet, Additional */}
+              {/* Left: Theo, Testnet, Additional */}
               <div className="flex flex-col space-y-6">
                 {theoAsset && (
                   <AllocationCard
@@ -142,9 +145,10 @@ export default function App() {
                     pointsLabel="Total Test $MITO :"
                   />
                 )}
-                {/* Additional Rewards */}
                 <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-4 w-full space-y-2">
-                  <h2 className="text-xl font-semibold text-gray-200">Additional Rewards</h2>
+                  <h2 className="text-xl font-semibold mb-2 text-gray-200">
+                    Additional Rewards
+                  </h2>
                   {bonuses.map(b => (
                     <div key={b.key} className="flex items-center justify-between">
                       <label className="flex items-center space-x-2 text-sm">
@@ -178,11 +182,13 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Right: Mitosis Expedition */}
+              {/* Right: Expedition */}
               <div className="flex flex-col space-y-6">
                 <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-4 w-full space-y-3">
-                  <h2 className="text-xl font-semibold text-gray-200">Mitosis Expedition</h2>
-                  <p className="text-white font-bold">
+                  <h2 className="text-xl font-semibold text-gray-200">
+                    Mitosis Expedition
+                  </h2>
+                  <p className="text-white font-bold mb-2">
                     Total Expedition Points: {displayExpPoints}
                   </p>
                   <label className="text-gray-400 text-sm">% of FDV</label>
@@ -192,12 +198,12 @@ export default function App() {
                     max="100"
                     value={expPct}
                     onChange={e => setExpPct(Number(e.target.value))}
-                    className="w-full accent-blue-500"
+                    className="w-full accent-blue-500 mb-2"
                   />
                   <div className="text-gray-200 text-sm mb-2">{expPct}%</div>
                   <div className="space-y-1">
                     {expeditionAssets.map(a => (
-                      <div key={a.asset} className="space-y-1">
+                      <div key={a.asset}>
                         <p className="text-gray-200 text-sm font-medium">{a.asset}</p>
                         <p className="text-white text-xs">
                           Points: {Math.floor(a.points).toLocaleString('fr-FR')}
@@ -235,13 +241,19 @@ export default function App() {
                   additionalUSD={additionalUSD}
                 />
               </div>
-              <div className="max-w-md bg-gray-700 rounded-2xl shadow-lg p-6 flex flex-col justify-center items-center w-full mx-auto">
+              <div className="max-w-md bg-gray-700 rounded-2xl shadow-lg p-6 w-full mx-auto">
                 <h2 className="text-lg font-bold text-gray-200 mb-2">
                   Total Estimated Airdrop
                 </h2>
-                <p className="text-3xl font-semibold">
-                  ${totalUSD.toFixed(2).toLocaleString('fr-FR')}
+                <p className="text-3xl font-semibold mb-4">
+                  ${totalUSD.toLocaleString('fr-FR')}
                 </p>
+                <div className="space-y-1 text-gray-200 text-sm">
+                  <p>• Mitosis Expedition: ${expeditionUSD.toLocaleString('fr-FR')}</p>
+                  <p>• Theo Vault: ${theoUSD.toLocaleString('fr-FR')}</p>
+                  <p>• Testnet: ${testnetUSD.toLocaleString('fr-FR')}</p>
+                  <p>• Additional Rewards: ${additionalUSD.toLocaleString('fr-FR')}</p>
+                </div>
               </div>
             </div>
           </>
