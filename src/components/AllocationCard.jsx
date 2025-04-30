@@ -16,6 +16,9 @@ export default function AllocationCard({
   tier,
   onPointsChange
 }) {
+  // floor des points pour l'affichage et la copie
+  const displayPoints = Math.floor(points);
+
   return (
     <div className="bg-gray-800 rounded-2xl shadow-lg p-6 flex flex-col space-y-2">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
@@ -33,12 +36,12 @@ export default function AllocationCard({
       <div className="flex items-center space-x-2">
         <input
           type="number"
-          value={points}
+          value={displayPoints}
           onChange={e => onPointsChange(Number(e.target.value))}
           className="flex-1 p-2 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <button
-          onClick={() => navigator.clipboard.writeText(points)}
+          onClick={() => navigator.clipboard.writeText(displayPoints)}
           className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-500 rounded-md"
         >
           Copy
@@ -46,7 +49,7 @@ export default function AllocationCard({
       </div>
 
       <p className="text-gray-400 text-xs">
-        (Points affichés &amp; modifiables pour simuler)
+        (Points arrondis à l’entier inférieur pour affichage)
       </p>
     </div>
   );
