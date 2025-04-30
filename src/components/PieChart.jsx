@@ -7,13 +7,15 @@ import {
 } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
 
-// Enregistrement des composants Chart.js
+// Enregistrer les composants Chart.js
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function PieChart({ data, options }) {
   return (
     <div className="w-full h-full">
       <Pie
+        // La clé forcera React à recréer le composant à chaque changement de data
+        key={JSON.stringify(data)}
         data={data}
         options={{
           responsive: true,
