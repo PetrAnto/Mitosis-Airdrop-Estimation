@@ -1,7 +1,6 @@
-// src/components/AllocationCard.jsx
 import React from 'react';
 
-// Mapping numérique → libellé
+// Mapping numérique → libellé Tier
 const TIER_LABELS = {
   1: 'Bronze',
   2: 'Silver',
@@ -19,17 +18,20 @@ export default function AllocationCard({
   showSlider = false,
   pct = 0,
   onPctChange,
-  // checkbox bonus
+  // case à cocher bonus
   showCheckbox = false,
   selected = false,
   onToggle,
   // supply bonus
-  supply
+  supply,
+  // libellé à afficher devant les points
+  pointsLabel = 'Points :'
 }) {
   const displayPoints = Math.floor(points);
 
   return (
     <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 w-full space-y-4">
+      {/* Entête : checkbox + titre */}
       <div className="flex items-center justify-between">
         {showCheckbox && (
           <input
@@ -42,13 +44,14 @@ export default function AllocationCard({
         <h2 className="text-xl font-semibold text-gray-200">{asset}</h2>
       </div>
 
-      {/* N'affiche la ligne Points que si ce n'est pas un bonus additionnel */}
+      {/* Ligne Points, masquée pour les bonus */}
       {!showCheckbox && (
         <p className="text-white">
-          Points : {displayPoints.toLocaleString('fr-FR')}
+          {pointsLabel} {displayPoints.toLocaleString('fr-FR')}
         </p>
       )}
 
+      {/* Rank & Tier, masqués pour les bonus */}
       {rank != null && !showCheckbox && (
         <p className="text-gray-400">
           Rank #{rank}
@@ -56,6 +59,7 @@ export default function AllocationCard({
         </p>
       )}
 
+      {/* Slider %FDV */}
       {showSlider && (
         <>
           <label className="text-gray-400">% of FDV</label>
@@ -72,6 +76,7 @@ export default function AllocationCard({
         </>
       )}
 
+      {/* Supply, seulement pour les bonus */}
       {supply != null && showCheckbox && (
         <p className="text-gray-400 text-sm">
           Supply max : {supply.toLocaleString('fr-FR')}
