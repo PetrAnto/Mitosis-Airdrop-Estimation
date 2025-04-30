@@ -7,16 +7,15 @@ import {
 } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
 
-// Enregistre une fois pour toutes les composants Chart.js
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-export default function PieChart({ expeditionUSD, testnetUSD }) {
+export default function PieChart({ expeditionUSD, theoUSD, testnetUSD }) {
   const data = {
-    labels: ['Expedition USD', 'Testnet USD'],
+    labels: ['Expedition USD', 'Theo Vault USD', 'Testnet USD'],
     datasets: [
       {
-        data: [expeditionUSD, testnetUSD],
-        backgroundColor: ['#4ade80', '#60a5fa'],
+        data: [expeditionUSD, theoUSD, testnetUSD],
+        backgroundColor: ['#4ade80', '#f59e0b', '#60a5fa'],
         borderWidth: 0,
       },
     ],
@@ -36,9 +35,9 @@ export default function PieChart({ expeditionUSD, testnetUSD }) {
       tooltip: {
         callbacks: {
           label: ({ label, parsed, dataset }) => {
-            const total = dataset.data.reduce((sum, v) => sum + v, 0);
+            const total = dataset.data.reduce((s, v) => s + v, 0);
             const pct = total ? ((parsed / total) * 100).toFixed(2) : 0;
-            return `${label}: $${parsed.toFixed(2)} (${pct}%)`;
+            return `${label}: $${parsed.toFixed(2).toLocaleString('fr-FR')} (${pct}%)`;
           },
         },
       },
