@@ -8,6 +8,8 @@ import {
   fetchTestnetData,
 } from './api/mitosis'
 
+// Mapping tiers to names and bonus multipliers
+const TIER_BONUS = { 1: 1.0, 2: 1.2, 3: 1.5, 4: 2.0, 5: 3.0 }
 const TIER_NAMES = {
   1: 'Bronze',
   2: 'Silver',
@@ -16,6 +18,7 @@ const TIER_NAMES = {
   5: 'Diamond',
 }
 
+// Friendly labels for expedition assets
 const ASSET_LABELS = {
   weETH:  'weETH',
   ezETH:  'ezETH',
@@ -25,26 +28,26 @@ const ASSET_LABELS = {
   cmeth:  'cmETH',
 }
 
-// ∑ points × avg bonus
+// ∑ points × average tier bonus
 const EXPEDITION_DENOM = 225_000_000_000 * 1.5
-// pool fixe Testnet
+// Fixed pool of testnet tokens
 const TESTNET_POOL_TOKENS = 30_954_838.28
 
 export default function App() {
-  const [address, setAddress] = useState('')
-  const [assets, setAssets] = useState([])
-  const [expPct, setExpPct]   = useState(10) // 0–15 step 1
-  const [testPct, setTestPct] = useState(5)  // 0–15 step 1
-  const [bonuses, setBonuses] = useState([
-    { key:'morse',      label:'Morse NFT',               supply:2924,  selected:false, pct:1   },
-    { key:'partner',    label:'NFT Partner Collections', supply:38888, selected:false, pct:0.5 },
-    { key:'discordMi',  label:'Discord Mi-Role',         supply:100,   selected:false, pct:0.5 },
-    { key:'discordInt', label:'Discord Intern-Role',     supply:200,   selected:false, pct:0.5 },
-    { key:'kaito',      label:'Kaito Yapper',            supply:1000,  selected:false, pct:2   },
+  const [address, setAddress]   = useState('')
+  const [assets, setAssets]     = useState([])
+  const [expPct, setExpPct]     = useState(10) // 0–15%, step 1
+  const [testPct, setTestPct]   = useState(5)  // 0–15%, step 1
+  const [bonuses, setBonuses]   = useState([
+    { key:'morse',      label:'Morse NFT',               supply:2924,   selected:false, pct:1   },
+    { key:'partner',    label:'NFT Partner Collections', supply:38888,  selected:false, pct:0.5 },
+    { key:'discordMi',  label:'Discord Mi-Role',         supply:100,    selected:false, pct:0.5 },
+    { key:'discordInt', label:'Discord Intern-Role',     supply:200,    selected:false, pct:0.5 },
+    { key:'kaito',      label:'Kaito Yapper',            supply:1000,   selected:false, pct:2   },
   ])
-  const [fdvUsd, setFdvUsd]   = useState(150_000_000)
-  const [loading, setLoading] = useState(false)
-  const [error,   setError]   = useState(null)
+  const [fdvUsd, setFdvUsd]     = useState(150_000_000)
+  const [loading, setLoading]   = useState(false)
+  const [error, setError]       = useState(null)
 
   useEffect(() => {
     if (!address) return
@@ -61,35 +64,36 @@ export default function App() {
       .finally(() => setLoading(false))
   }, [address])
 
+  // Extract categories
   const expeditionAssets = assets.filter(a =>
     ['weETH','ezETH','weETHs','unibtc','unieth','cmeth'].includes(a.asset)
   )
-  const theoAsset    = assets.find(a => a.asset === 'Theo Vault')
-  const testnetAsset = assets.find(a => a.asset === 'Testnet $MITO')
+  const theoAsset    = assets.find(a => a.asset==='Theo Vault')
+  const testnetAsset = assets.find(a => a.asset==='Testnet $MITO')
 
-  // === Expedition ===
+  // 1) Mitosis Expedition calculations
   const totalExpPoints   = expeditionAssets.reduce((s,a) => s + a.points, 0)
   const displayExpPoints = Math.floor(totalExpPoints).toLocaleString('fr-FR')
   const expeditionTierBoost = expeditionAssets.length
-    ? Math.max(...expeditionAssets.map(a => TIER_NAMES[a.tier] ? a.tier : 1))
+    ? Math.max(...expeditionAssets.map(a => TIER_BONUS[a.tier] || 1))
     : 1
   const expeditionSharePct = (totalExpPoints * expeditionTierBoost / EXPEDITION_DENOM) * 100
   const expeditionPoolUsd  = (expPct / 100) * fdvUsd
-  const expeditionUSD      = Math.floor(expeditionSharePct / 100 * expeditionPoolUsd)
+  const expeditionUSD      = Math.floor((expeditionSharePct / 100) * expeditionPoolUsd)
 
-  // === Theo Vault (même % FDV que Expedition) ===
+  // 2) Theo Vault (same FDV% as Expedition)
   const displayTheoPoints = theoAsset
     ? Math.floor(theoAsset.points).toLocaleString('fr-FR')
     : '0'
-  const weETH = expeditionAssets.find(a => a.asset === 'weETH')
-  const theoTierBoost = weETH ? weETH.tier : 1
-  const theoSharePct  = theoAsset
-    ? (theoAsset.points * theoTierBoost / EXPEDITION_DENOM) * 100
+  const weETH = expeditionAssets.find(a => a.asset==='weETH')
+  const theoTier = weETH ? weETH.tier : 1
+  const theoSharePct = theoAsset
+    ? (theoAsset.points * TIER_BONUS[theoTier] / EXPEDITION_DENOM) * 100
     : 0
   const theoPoolUsd = expeditionPoolUsd
-  const theoUSD     = Math.floor(theoSharePct / 100 * theoPoolUsd)
+  const theoUSD     = Math.floor((theoSharePct / 100) * theoPoolUsd)
 
-  // === Testnet ===
+  // 3) Game of Mito Testnet
   const testnetUSD = testnetAsset
     ? Math.floor(
         (testnetAsset.points / TESTNET_POOL_TOKENS)
@@ -98,26 +102,26 @@ export default function App() {
       )
     : 0
 
-  // === Additional Rewards ===
+  // 4) Additional Rewards USD
   const additionalUSD = Math.floor(
     bonuses
       .filter(b => b.selected)
-      .reduce((sum, b) => sum + (b.pct / 100) * fdvUsd / b.supply, 0)
+      .reduce((sum,b) => sum + (b.pct / 100) * fdvUsd / b.supply, 0)
   )
-  const totalBonusPct = bonuses.filter(b => b.selected).reduce((s, b) => s + b.pct, 0)
+  const totalBonusPct = bonuses.filter(b => b.selected).reduce((s,b) => s + b.pct, 0)
 
-  // === Totaux ===
+  // Totals
   const totalUSD        = expeditionUSD + theoUSD + testnetUSD + additionalUSD
   const totalAirdropPct = (expPct + testPct + totalBonusPct).toFixed(1)
 
-  const toggleBonus = (key) => {
+  const toggleBonus = key => {
     setBonuses(bs =>
-      bs.map(b => b.key === key ? { ...b, selected: !b.selected } : b)
+      bs.map(b => b.key===key ? { ...b, selected: !b.selected } : b)
     )
   }
   const changeBonusPct = (key, pct) => {
     setBonuses(bs =>
-      bs.map(b => b.key === key ? { ...b, pct } : b)
+      bs.map(b => b.key===key ? { ...b, pct } : b)
     )
   }
 
@@ -162,44 +166,43 @@ export default function App() {
         </div>
 
         {loading && <p className="text-gray-400">Chargement…</p>}
-        {error && <p className="text-red-500">Erreur : {error}</p>}
+        {error   && <p className="text-red-500">Erreur : {error}</p>}
 
         {!loading && !error && assets.length > 0 && (
           <>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-              {/* Gauche: Testnet + Additional */}
-              <div className="flex flex-col space-y-6">
+            {/* Top cards: Testnet & Additional | Expedition & Theo Vault */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 justify-items-center">
+              {/* Left column */}
+              <div className="flex flex-col space-y-6 w-full max-w-md">
                 {/* Game of Mito Testnet */}
-                {testnetAsset && (
-                  <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-4 space-y-2">
-                    <h2 className="text-xl font-semibold text-gray-200">
-                      Game of Mito Testnet
-                    </h2>
-                    <p className="text-white">
-                      Total Test $MITO: {Math.floor(testnetAsset.points).toLocaleString('fr-FR')}
-                    </p>
-                    <div className="flex items-center">
-                      <input
-                        type="range"
-                        min={0}
-                        max={15}
-                        step={1}
-                        value={testPct}
-                        onChange={e => setTestPct(Number(e.target.value))}
-                        className="flex-1 accent-blue-500"
-                      />
-                      <span className="ml-2 text-gray-200 text-sm">{testPct}%</span>
-                    </div>
+                <div className="bg-gray-800 rounded-2xl shadow-lg p-4 space-y-2 w-full">
+                  <h2 className="text-xl font-semibold text-gray-200">
+                    Game of Mito Testnet
+                  </h2>
+                  <p className="text-white">
+                    Total Test $MITO: {Math.floor(testnetAsset.points).toLocaleString('fr-FR')}
+                  </p>
+                  <div className="flex items-center">
+                    <input
+                      type="range"
+                      min={0}
+                      max={15}
+                      step={1}
+                      value={testPct}
+                      onChange={e => setTestPct(Number(e.target.value))}
+                      className="flex-1 accent-blue-500"
+                    />
+                    <span className="ml-2 text-gray-200 text-sm">{testPct}%</span>
                   </div>
-                )}
+                </div>
 
                 {/* Additional Rewards */}
-                <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-4 space-y-2">
+                <div className="bg-gray-800 rounded-2xl shadow-lg p-4 space-y-2 w-full">
                   <h2 className="text-xl font-semibold text-gray-200">
                     Additional Rewards
                   </h2>
                   {bonuses.map(b => {
-                    const max = (b.key === 'morse' || b.key === 'kaito') ? 2 : 1
+                    const max = (b.key==='morse'||b.key==='kaito') ? 2 : 1
                     return (
                       <div key={b.key} className="flex items-center justify-between">
                         <label className="flex items-center space-x-2 text-sm">
@@ -221,9 +224,7 @@ export default function App() {
                             onChange={e => changeBonusPct(b.key, Number(e.target.value))}
                             className="w-20 accent-blue-500"
                           />
-                          <span className="text-gray-200 text-sm">
-                            {b.pct}%
-                          </span>
+                          <span className="text-gray-200 text-sm">{b.pct}%</span>
                         </div>
                       </div>
                     )
@@ -236,10 +237,10 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Droite: Expedition + Theo Vault */}
-              <div className="flex flex-col space-y-6">
+              {/* Right column */}
+              <div className="flex flex-col space-y-6 w-full max-w-md">
                 {/* Mitosis Expedition */}
-                <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-4">
+                <div className="bg-gray-800 rounded-2xl shadow-lg p-4 w-full">
                   <h2 className="text-xl font-semibold text-gray-200">
                     Mitosis Expedition
                   </h2>
@@ -268,7 +269,7 @@ export default function App() {
                           {Math.floor(a.points).toLocaleString('fr-FR')}
                         </p>
                         <p className="text-gray-400 text-xs">
-                          Tier: {TIER_NAMES[a.tier] || 'Bronze'}
+                          Tier: {TIER_NAMES[a.tier]}
                         </p>
                       </div>
                     ))}
@@ -276,7 +277,7 @@ export default function App() {
                 </div>
 
                 {/* Theo Vault */}
-                <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-4 space-y-2">
+                <div className="bg-gray-800 rounded-2xl shadow-lg p-4 w-full">
                   <h2 className="text-xl font-semibold text-gray-200">
                     Theo Vault
                   </h2>
@@ -289,7 +290,7 @@ export default function App() {
 
             {/* PieChart & Total Estimated Airdrop */}
             <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8 justify-items-center">
-              <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 h-[300px] w-full">
+              <div className="bg-gray-800 rounded-2xl shadow-lg p-6 h-[300px] w-full max-w-md">
                 <h2 className="text-xl font-semibold mb-4 text-gray-200">
                   Allocation Breakdown (USD)
                 </h2>
@@ -301,7 +302,7 @@ export default function App() {
                   showLabels
                 />
               </div>
-              <div className="max-w-md bg-gray-700 rounded-2xl shadow-lg p-6 w-full">
+              <div className="bg-gray-700 rounded-2xl shadow-lg p-6 w-full max-w-md">
                 <h2 className="text-lg font-bold text-gray-200 mb-2">
                   Total Estimated Airdrop
                 </h2>
