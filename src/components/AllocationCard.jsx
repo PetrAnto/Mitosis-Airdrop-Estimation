@@ -1,3 +1,4 @@
+// src/components/AllocationCard.jsx
 import React from 'react';
 
 // Mapping numérique → libellé
@@ -11,18 +12,18 @@ const TIER_LABELS = {
 
 export default function AllocationCard({
   asset,
-  points,
+  points = 0,
   rank,
   tier,
-  // Props pour slider FDV
+  // slider FDV
   showSlider = false,
   pct = 0,
   onPctChange,
-  // Props pour checkbox bonus
+  // checkbox bonus
   showCheckbox = false,
   selected = false,
   onToggle,
-  // Props pour afficher le supply (bonus)
+  // supply bonus
   supply
 }) {
   const displayPoints = Math.floor(points);
@@ -41,13 +42,17 @@ export default function AllocationCard({
         <h2 className="text-xl font-semibold text-gray-200">{asset}</h2>
       </div>
 
-      <p className="text-white">
-        Points : {displayPoints.toLocaleString('fr-FR')}
-      </p>
+      {/* N'affiche la ligne Points que si ce n'est pas un bonus additionnel */}
+      {!showCheckbox && (
+        <p className="text-white">
+          Points : {displayPoints.toLocaleString('fr-FR')}
+        </p>
+      )}
 
-      {rank != null && (
+      {rank != null && !showCheckbox && (
         <p className="text-gray-400">
-          Rank #{rank}{tier ? ` · Tier : ${TIER_LABELS[tier]}` : ''}
+          Rank #{rank}
+          {tier ? ` · Tier : ${TIER_LABELS[tier]}` : ''}
         </p>
       )}
 
@@ -67,7 +72,7 @@ export default function AllocationCard({
         </>
       )}
 
-      {supply != null && (
+      {supply != null && showCheckbox && (
         <p className="text-gray-400 text-sm">
           Supply max : {supply.toLocaleString('fr-FR')}
         </p>
