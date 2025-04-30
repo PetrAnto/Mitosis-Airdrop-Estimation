@@ -1,3 +1,4 @@
+// src/App.jsx
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import AllocationCard from './components/AllocationCard';
@@ -10,7 +11,7 @@ import {
 
 export default function App() {
   const [address, setAddress] = useState('');
-  const [assets, setAssets] = useState([]); // { asset, points, rank, tier }[]
+  const [assets, setAssets] = useState([]); 
   const [expPct, setExpPct] = useState(15);
   const [theoPct, setTheoPct] = useState(10);
   const [testPct, setTestPct] = useState(10);
@@ -35,13 +36,15 @@ export default function App() {
       .finally(() => setLoading(false));
   }, [address]);
 
-  // Séparer les catégories
-  const expeditionAssets = assets.filter(a => a.asset === 'weETH' || a.asset === 'ezETH' || a.asset === 'weETHs' || a.asset === 'unibtc' || a.asset === 'unieth' || a.asset === 'cmeth');
-  const theoAsset        = assets.find(a => a.asset === 'Theo Vault');
-  const testnetAsset     = assets.find(a => a.asset === 'Testnet $MITO');
+  // Séparer familles
+  const expeditionAssets = assets.filter(a =>
+    ['weETH','ezETH','weETHs','unibtc','unieth','cmeth'].includes(a.asset)
+  );
+  const theoAsset    = assets.find(a => a.asset === 'Theo Vault');
+  const testnetAsset = assets.find(a => a.asset === 'Testnet $MITO');
 
-  // Totaux de points
-  const totalExpPoints = expeditionAssets.reduce((sum, a) => sum + a.points, 0);
+  // Totaux points (arrondis)
+  const totalExpPoints = expeditionAssets.reduce((sum,a) => sum + a.points, 0);
   const displayExpPoints = Math.floor(totalExpPoints).toLocaleString('fr-FR');
   const displayTheoPoints = theoAsset
     ? Math.floor(theoAsset.points).toLocaleString('fr-FR')
@@ -50,10 +53,10 @@ export default function App() {
     ? Math.floor(testnetAsset.points).toLocaleString('fr-FR')
     : '0';
 
-  // Calcul USD simplifié : % of FDV × FDV_USD
-  const expeditionUSD = (expPct / 100) * FDV_USD;
-  const theoUSD       = (theoPct / 100) * FDV_USD;
-  const testnetUSD    = (testPct / 100) * FDV_USD;
+  // Calcul USD (simplifié ici)
+  const expeditionUSD = (expPct/100) * FDV_USD;
+  const theoUSD       = (theoPct/100) * FDV_USD;
+  const testnetUSD    = (testPct/100) * FDV_USD;
   const totalUSD      = expeditionUSD + theoUSD + testnetUSD;
 
   return (
@@ -61,7 +64,7 @@ export default function App() {
       <Header />
 
       <main className="container mx-auto px-6 py-10 space-y-10">
-        {/* Saisie du wallet */}
+        {/* Wallet input */}
         <div>
           <label className="block text-gray-300 mb-2">Wallet address</label>
           <input
@@ -79,24 +82,33 @@ export default function App() {
         {!loading && !error && assets.length > 0 && (
           <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-              {/* Gauche */}
+              {/* ← Gauche : Theo Vault & Testnet */}
               <div className="flex flex-col items-center space-y-8">
                 {/* Theo Vault */}
                 {theoAsset && (
-                  <AllocationCard
-                    asset={theoAsset.asset}
-                    points={theoAsset.points}
-                    rank={theoAsset.rank}
-                    tier={null}
-                    onPointsChange={pts => {
-                      /* pas de modification via slider ici */
-                    }}
-                  />
+                  <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 space-y-4 w-full">
+                    <h2 className="text-xl font-semibold text-gray-200">
+                      Theo Vault
+                    </h2>
+                    <p className="text-white">
+                      Points: {displayTheoPoints}
+                    </p>
+                    <label className="text-gray-400">% of FDV</label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={theoPct}
+                      onChange={e => setTheoPct(Number(e.target.value))}
+                      className="w-full accent-blue-500"
+                    />
+                    <div className="text-gray-200">{theoPct}%</div>
+                  </div>
                 )}
 
                 {/* Testnet */}
                 {testnetAsset && (
-                  <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 space-y-4">
+                  <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 space-y-4 w-full">
                     <h2 className="text-xl font-semibold text-gray-200">
                       Testnet $MITO
                     </h2>
@@ -118,10 +130,9 @@ export default function App() {
                 )}
               </div>
 
-              {/* Droite */}
+              {/* Droite → Mitosis Expedition */}
               <div className="flex flex-col items-center space-y-8">
-                {/* Mitosis Expedition */}
-                <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 space-y-4">
+                <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 space-y-4 w-full">
                   <h2 className="text-xl font-semibold text-gray-200">
                     Mitosis Expedition
                   </h2>
@@ -138,7 +149,7 @@ export default function App() {
                     className="w-full accent-blue-500"
                   />
                   <div className="text-gray-200">{expPct}%</div>
-                  <div className="space-y-3">
+                  <div className="space-y-3 pt-4">
                     {expeditionAssets.map(a => (
                       <div key={a.asset} className="space-y-1">
                         <p className="text-gray-200 font-medium">{a.asset}</p>
@@ -147,7 +158,7 @@ export default function App() {
                           {Math.floor(a.points).toLocaleString('fr-FR')}
                         </p>
                         <p className="text-gray-400 text-sm">
-                          Rank #{a.rank} · Tier:{' '}
+                          Tier:{' '}
                           {a.tier === 1
                             ? 'Bronze'
                             : a.tier === 2
@@ -169,7 +180,7 @@ export default function App() {
 
             {/* PieChart & Total USD */}
             <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 h-[400px]">
+              <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 h-[400px] w-full">
                 <h2 className="text-xl font-semibold text-gray-200 mb-4">
                   Allocation Breakdown (USD)
                 </h2>
@@ -179,7 +190,7 @@ export default function App() {
                   testnetUSD={testPct / 100 * FDV_USD}
                 />
               </div>
-              <div className="max-w-md bg-gray-700 rounded-2xl shadow-lg p-6 flex flex-col justify-center items-center">
+              <div className="max-w-md bg-gray-700 rounded-2xl shadow-lg p-6 flex flex-col justify-center items-center w-full">
                 <h2 className="text-lg font-bold text-gray-200 mb-2">
                   Total Estimated Airdrop
                 </h2>
