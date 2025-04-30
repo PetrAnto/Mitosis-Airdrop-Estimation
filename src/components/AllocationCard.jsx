@@ -14,36 +14,64 @@ export default function AllocationCard({
   points,
   rank,
   tier,
-  onPointsChange
+  // Props pour slider FDV
+  showSlider = false,
+  pct = 0,
+  onPctChange,
+  // Props pour checkbox bonus
+  showCheckbox = false,
+  selected = false,
+  onToggle,
+  // Props pour afficher le supply (bonus)
+  supply
 }) {
   const displayPoints = Math.floor(points);
 
   return (
-    <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 flex flex-col space-y-2">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-        <h2 className="text-lg font-semibold text-gray-200">{asset}</h2>
-        <div className="flex items-center space-x-4">
-          <span className="text-sm text-gray-400">Rank #{rank}</span>
-          {tier ? (
-            <span className="text-sm text-gray-400">
-              Tier: {TIER_LABELS[tier] || tier}
-            </span>
-          ) : null}
-        </div>
+    <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 w-full space-y-4">
+      <div className="flex items-center justify-between">
+        {showCheckbox && (
+          <input
+            type="checkbox"
+            checked={selected}
+            onChange={e => onToggle(e.target.checked)}
+            className="accent-blue-500"
+          />
+        )}
+        <h2 className="text-xl font-semibold text-gray-200">{asset}</h2>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <input
-          type="number"
-          value={displayPoints}
-          onChange={e => onPointsChange(Number(e.target.value))}
-          className="flex-1 p-2 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
-
-      <p className="text-gray-400 text-xs">
-        Points: {displayPoints.toLocaleString('fr-FR')}
+      <p className="text-white">
+        Points : {displayPoints.toLocaleString('fr-FR')}
       </p>
+
+      {rank != null && (
+        <p className="text-gray-400">
+          Rank #{rank}{tier ? ` · Tier : ${TIER_LABELS[tier]}` : ''}
+        </p>
+      )}
+
+      {showSlider && (
+        <>
+          <label className="text-gray-400">% of FDV</label>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            step="0.1"
+            value={pct}
+            onChange={e => onPctChange(Number(e.target.value))}
+            className="w-full accent-blue-500"
+          />
+          <div className="text-gray-200">{pct}%</div>
+        </>
+      )}
+
+      {supply != null && (
+        <p className="text-gray-400 text-sm">
+          Supply max : {supply.toLocaleString('fr-FR')}
+        </p>
+      )}
     </div>
   );
 }
