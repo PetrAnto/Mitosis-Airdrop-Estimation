@@ -1,4 +1,3 @@
-// src/App.jsx
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import AllocationCard from './components/AllocationCard';
@@ -10,7 +9,7 @@ import {
 
 export default function App() {
   const [address, setAddress] = useState('');
-  const [assets, setAssets] = useState([]); // [{ asset, points, rank }]
+  const [assets, setAssets] = useState([]); // { asset, points, rank, tier }[]
   const [testnetPoints, setTestnetPoints] = useState(0);
   const [expPct, setExpPct] = useState(15);
   const [testPct, setTestPct] = useState(10);
@@ -22,30 +21,25 @@ export default function App() {
 
   useEffect(() => {
     if (!address) return;
-    console.log('▶️ Fetching breakdown for', address);
     setLoading(true);
     setError(null);
-    fetchExpeditionBreakdown(address)
-      .then((expList) =>
-        fetchTheoPoints(address).then((theo) => {
-          const all = [...expList, theo];
-          console.log('✅ Received assets:', all);
-          setAssets(all);
-        })
-      )
-      .catch((err) => {
-        console.error('❌ API error', err);
-        setError(err.message);
+    Promise.all([
+      fetchExpeditionBreakdown(address),
+      fetchTheoPoints(address),
+    ])
+      .then(([expList, theo]) => {
+        setAssets([...expList, theo]);
       })
+      .catch(err => setError(err.message))
       .finally(() => setLoading(false));
   }, [address]);
 
-  // Calculs d’USD
-  const weights = assets.map((a) => a.points / (a.rank || 1));
-  const totalWeight = weights.reduce((s, w) => s + w, 0);
+  // Calcul USD via formule points/rank
+  const weights = assets.map(a => a.points / (a.rank || 1));
+  const totalWeight = weights.reduce((sum, w) => sum + w, 0);
   const expeditionUSD =
     totalWeight > 0
-      ? (weights.reduce((s, w) => s + w, 0) / totalWeight) *
+      ? (weights.reduce((sum, w) => sum + w, 0) / totalWeight) *
         (expPct / 100) *
         FDV_USD
       : 0;
@@ -64,7 +58,7 @@ export default function App() {
           <input
             type="text"
             value={address}
-            onChange={(e) => setAddress(e.target.value.trim())}
+            onChange={e => setAddress(e.target.value.trim())}
             placeholder="0x1234...abcd"
             className="w-full p-2 rounded-md bg-gray-700 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -73,33 +67,54 @@ export default function App() {
         {loading && <p className="text-gray-400">Chargement…</p>}
         {error && <p className="text-red-500">Erreur : {error}</p>}
 
-        {/* Affichez les cartes quand on a des assets */}
         {!loading && !error && assets.length > 0 && (
           <>
+            {/* Cartes Expedition + Theo */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {assets.map((a) => (
+              {assets.map(a => (
                 <AllocationCard
                   key={a.asset}
                   asset={a.asset}
                   points={a.points}
                   rank={a.rank}
-                  onPointsChange={(pts) =>
-                    setAssets((prev) =>
-                      prev.map((x) =>
+                  tier={a.tier}
+                  onPointsChange={pts =>
+                    setAssets(prev =>
+                      prev.map(x =>
                         x.asset === a.asset ? { ...x, points: pts } : x
                       )
                     )
                   }
                 />
               ))}
+
+              {/* Testnet card */}
+              <div className="bg-gray-800 rounded-2xl shadow-lg p-6 flex flex-col space-y-2">
+                <h2 className="text-lg font-semibold text-gray-200">
+                  Testnet $MITO
+                </h2>
+                <input
+                  type="number"
+                  value={testnetPoints}
+                  onChange={e => setTestnetPoints(Number(e.target.value))}
+                  className="w-full p-2 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="0"
+                />
+                <p className="text-gray-400 text-sm">Points Testnet</p>
+                <label className="text-gray-400 mt-4 mb-2">% of FDV</label>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={testPct}
+                  onChange={e => setTestPct(Number(e.target.value))}
+                  className="w-full accent-blue-500"
+                />
+                <div className="text-gray-200">{testPct}%</div>
+              </div>
             </div>
 
-            {/* Debug JSON brut */}
-            <pre className="text-xs text-gray-500 bg-gray-800 rounded p-4 overflow-auto">
-              {JSON.stringify(assets, null, 2)}
-            </pre>
-
-            {/* PieChart & Total */}
+            {/* Graphique & Total */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="bg-gray-800 rounded-2xl shadow-lg p-6 h-[400px]">
                 <h2 className="text-xl font-semibold text-gray-200 mb-4">
