@@ -9,28 +9,28 @@ export async function fetchExpeditionBreakdown(address) {
   const normalized = address.toLowerCase();
   const assets     = ["weETH", "ezETH", "weETHs", "uniBTC", "uniETH", "cmETH"];
 
-  console.log("🔍 [fetchExpeditionBreakdown] address =", normalized);
+  console.log("🔍 [fetchExpedition] address =", normalized);
 
   const results = await Promise.all(
     assets.map(async (asset) => {
       const url = `/api/expedition/${normalized}?asset=${asset}`;
-      console.log(`→ Fetch Expedition ${asset} via`, url);
+      console.log(`→ Fetch Expedition ${asset}:`, url);
       try {
         const res  = await fetch(url);
         const data = await res.json();
         console.log(`← Expedition ${asset} response:`, data);
 
-        const points = parseFloat(data?.mitoPoints?.total  || 0);
+        const points = parseFloat(data?.mitoPoints?.total || 0);
         const tier   = data?.tier?.tier || 1;
         return { asset, points, tier };
       } catch (e) {
-        console.error(`✖ Expense fetch failed for ${asset}`, e);
+        console.error(`✖ Expedition fetch failed for ${asset}`, e);
         return { asset, points: 0, tier: 1 };
       }
     })
   );
 
-  console.log("✅ [fetchExpeditionBreakdown] results:", results);
+  console.log("✅ [fetchExpedition] results:", results);
   return results;
 }
 
@@ -40,20 +40,21 @@ export async function fetchExpeditionBreakdown(address) {
  * Retourne { asset: "Theo Vault", points }
  */
 export async function fetchTheoPoints(address) {
+  // On peut lowercase ici car l'API Theo n'est pas case-sensitive
   const normalized = address.toLowerCase();
   const url        = `/api/theo/${normalized}`;
 
-  console.log("🔍 [fetchTheoPoints] URL =", url);
+  console.log("🔍 [fetchTheo] URL =", url);
   try {
     const res  = await fetch(url);
     const json = await res.json();
     console.log("← Theo Vault response:", json);
 
     const points = parseFloat(json[0]?.mitoPoints || 0);
-    console.log("✅ [fetchTheoPoints] points =", points);
+    console.log("✅ [fetchTheo] points =", points);
     return { asset: "Theo Vault", points };
   } catch (e) {
-    console.error("✖ [fetchTheoPoints] failed", e);
+    console.error("✖ Theo fetch failed", e);
     return { asset: "Theo Vault", points: 0 };
   }
 }
@@ -64,21 +65,26 @@ export async function fetchTheoPoints(address) {
  * Retourne { asset: "Testnet $MITO", points }
  */
 export async function fetchTestnetData(address) {
-  const normalized = address.toLowerCase();
-  const url        = `/api/testnet/${normalized}`;
+  // Ici on garde la casse fournie (ex: "0xF11B04D926A5Ca738Dc893684986BaD799AF941F")
+  const url = `/api/testnet/${address}`;
 
-  console.log("🔍 [fetchTestnetData] URL =", url);
+  console.log("🔍 [fetchTestnet] URL =", url);
   try {
     const res  = await fetch(url);
     const json = await res.json();
     console.log("← Testnet raw response:", json);
 
-    // Selon la réponse, total_balance peut être dans json.data.total_balance
-    const points = parseFloat(json?.data?.total_balance || 0);
-    console.log("✅ [fetchTestnetData] points =", points);
+    // On vérifie success avant d'extraire le total_balance
+    if (!json.success) {
+      console.warn("⚠ Testnet API returned success=false:", json.error);
+      return { asset: "Testnet $MITO", points: 0 };
+    }
+
+    const points = parseFloat(json.data?.total_balance || 0);
+    console.log("✅ [fetchTestnet] points =", points);
     return { asset: "Testnet $MITO", points };
   } catch (e) {
-    console.error("✖ [fetchTestnetData] failed", e);
+    console.error("✖ Testnet fetch failed", e);
     return { asset: "Testnet $MITO", points: 0 };
   }
 }
