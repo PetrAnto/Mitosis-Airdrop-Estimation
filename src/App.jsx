@@ -23,9 +23,9 @@ const ASSET_LABELS = {
   weETH:  'weETH',
   ezETH:  'ezETH',
   weETHs: 'weETHs',
-  unibtc: 'uniBTC',
-  unieth: 'uniETH',
-  cmeth:  'cmETH',
+  uniBTC: 'uniBTC',
+  uniETH: 'uniETH',
+  cmETH:  'cmETH',
 }
 
 // ∑ points × average tier bonus
