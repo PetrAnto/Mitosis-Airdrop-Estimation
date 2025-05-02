@@ -6,7 +6,7 @@ export async function fetchExpeditionBreakdown(address) {
     assets.map(async (asset) => {
       try {
         const normalizedAddress = address.toLowerCase();
-        const url = `https://api.expedition.mitosis.org/v1/status/${normalizedAddress}?asset=${asset}`;
+        const url = `https://api.expedition.mitosis.org/v1/status/${address}?asset=${asset}`;
         const res = await fetch(url);
         const data = await res.json();
         const points = parseFloat(data?.mitoPoints?.total || 0);
