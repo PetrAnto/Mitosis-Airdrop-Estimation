@@ -1,22 +1,29 @@
-import React from 'react';
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-import { Pie } from 'react-chartjs-2';
+// src/components/PieChart.jsx
 
-// Enregistre une fois pour toutes les composants Chart.js
+import React from 'react';
+import { Pie } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-export default function PieChart({ expeditionUSD, testnetUSD }) {
+export default function PieChart({
+  expeditionUSD = 0,
+  theoUSD = 0,
+  testnetUSD = 0,
+  additionalUSD = 0,
+}) {
+  // Data for the Pie Chart including Additional Rewards
   const data = {
-    labels: ['Expedition USD', 'Testnet USD'],
+    labels: ['Expedition USD', 'Theo Vault USD', 'Testnet USD', 'Additional USD'],
     datasets: [
       {
-        data: [expeditionUSD, testnetUSD],
-        backgroundColor: ['#4ade80', '#60a5fa'],
+        data: [expeditionUSD, theoUSD, testnetUSD, additionalUSD],
+        backgroundColor: [
+          'rgba(52, 211, 153, 0.8)',   // green
+          'rgba(251, 146, 60, 0.8)',    // orange
+          'rgba(96, 165, 250, 0.8)',    // blue
+          'rgba(250, 204, 21, 0.8)',    // yellow
+        ],
         borderWidth: 0,
       },
     ],
@@ -29,16 +36,18 @@ export default function PieChart({ expeditionUSD, testnetUSD }) {
       legend: {
         position: 'top',
         labels: {
-          color: '#FFFFFF',
-          font: { size: 12 },
+          boxWidth: 20,
+          padding: 15,
         },
       },
       tooltip: {
         callbacks: {
-          label: ({ label, parsed, dataset }) => {
-            const total = dataset.data.reduce((sum, v) => sum + v, 0);
-            const pct = total ? ((parsed / total) * 100).toFixed(2) : 0;
-            return `${label}: $${parsed.toFixed(2)} (${pct}%)`;
+          label: (context) => {
+            const label = context.label || '';
+            const value = context.parsed || 0;
+            const total = context.chart._metasets[context.datasetIndex].total;
+            const pct = total ? ((value / total) * 100).toFixed(2) : '0.00';
+            return `${label}: $${value.toLocaleString('fr-FR')} (${pct}%)`;
           },
         },
       },
@@ -46,7 +55,7 @@ export default function PieChart({ expeditionUSD, testnetUSD }) {
   };
 
   return (
-    <div className="w-full h-full">
+    <div className="h-64 w-full">
       <Pie data={data} options={options} />
     </div>
   );
