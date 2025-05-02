@@ -67,7 +67,7 @@ export default function App() {
 
   // Categories
   const expeditionAssets = assets.filter(a =>
-    ['weETH','ezETH','weETHs','unibtc','unieth','cmeth'].includes(a.asset)
+    ['weETH','ezETH','weETHs','uniBTC','uniETH','cmETH'].includes(a.asset)
   )
   const theoAsset    = assets.find(a => a.asset === 'Theo Vault')
   const testnetAsset = assets.find(a => a.asset === 'Testnet $MITO')
