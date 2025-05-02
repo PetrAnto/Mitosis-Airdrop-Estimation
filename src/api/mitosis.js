@@ -1,24 +1,30 @@
 // src/api/mitosis.js
 
-// Fetches the breakdown of expedition points by asset
 export async function fetchExpeditionBreakdown(address) {
   const assets = ['weETH', 'ezETH', 'weETHs', 'uniBTC', 'uniETH', 'cmETH']
-  const promises = assets.map(asset =>
-    fetch(`https://workermito.mitoapi.workers.dev/expedition-rank?address=${address}&asset=${asset}`)
-      .then(res => {
-        if (!res.ok) throw new Error(`Expedition ${asset} HTTP ${res.status}`)
-        return res.json()
-      })
-      .then(json => ({
+  const normalized = address.toLowerCase()
+
+  const promises = assets.map(async (asset) => {
+    try {
+      const url = `https://api.expedition.mitosis.org/v1/status/${normalized}?asset=${asset}`
+      const res = await fetch(url)
+      if (!res.ok) throw new Error(`Expedition ${asset} HTTP ${res.status}`)
+      const json = await res.json()
+
+      return {
         asset,
-        points: parseFloat(json.item.totalPoints),
-        tier: json.item.tier
-      }))
-      .catch(err => {
-        console.error(`fetchExpeditionBreakdown ${asset} failed`, err)
-        return { asset, points: 0, tier: 1 }
-      })
-  )
+        points: parseFloat(json.mitoPoints?.total || '0'),
+        tier: json.tier?.tier || 1
+      }
+    } catch (err) {
+      console.error(`fetchExpeditionBreakdown ${asset} failed`, err)
+      return {
+        asset,
+        points: 0,
+        tier: 1
+      }
+    }
+  })
 
   return Promise.all(promises)
 }
