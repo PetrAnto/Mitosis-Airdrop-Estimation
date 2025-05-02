@@ -125,6 +125,9 @@ export default function App() {
       bs.map(b => b.key===key ? { ...b, pct } : b)
     )
   }
+  
+ const [showDetails, setShowDetails] = useState(false)
+ 
 
   return (
     <div className="min-h-screen bg-black text-white font-sans">
@@ -324,6 +327,59 @@ export default function App() {
           </>
         )}
       </main>
+      @@ return (
+     </main>
+    
+ {/* --- DÉTAILS DES CALCULS (toggle) --- */}
+<div className="container mx-auto px-6 py-4">
+ <button
+onClick={() => setShowDetails(d => !d)}
+className="text-blue-400 underline mb-2"
+>
++        {showDetails ? 'Hide calculation details' : 'Show calculation details'}
++      </button>
++
++      {showDetails && (
++        <div className="bg-gray-800 rounded-2xl p-4 text-sm space-y-4">
++          <h3 className="text-lg font-semibold text-gray-200">Calculation Details</h3>
++          <p>
++            <strong>Expedition denominator (∑P × avg tier bonus):</strong><br/>
++            {EXPEDITION_DENOM.toLocaleString('en-US')} (which is 225 000 000 000 × 1.5)
++          </p>
++          <p>
++            <strong>Testnet pool tokens:</strong><br/>
++            {TESTNET_POOL_TOKENS.toLocaleString('en-US')}
++          </p>
++          <p>
++            <strong>Expedition share %:</strong><br/>
++            (totalExpPoints × expeditionTierBoost) ÷ EXPEDITION_DENOM × 100 ={' '}
++            {(expeditionSharePct).toFixed(4)}%
++          </p>
++          <p>
++            <strong>Expedition USD:</strong><br/>
++            expeditionSharePct% × FDV ({fdvUsd.toLocaleString('en-US')}$) ={' '}
++            {expeditionUSD.toLocaleString('en-US')}$
++          </p>
++          <p>
++            <strong>Theo Vault USD:</strong><br/>
++            theoSharePct% × FDV = {theoUSD.toLocaleString('en-US')}$
++          </p>
++          <p>
++            <strong>Testnet USD:</strong><br/>
++            (testnet points ÷ TESTNET_POOL_TOKENS) × FDV × testPct% ={' '}
++            {testnetUSD.toLocaleString('en-US')}$
++          </p>
++          <p>
++            <strong>Additional rewards USD:</strong><br/>
++            Σ (bonus.pct% × FDV ÷ bonus.supply) ={' '}
++            {additionalUSD.toLocaleString('en-US')}$
++          </p>
++        </div>
++      )}
++    </div>
+   </div>
+ )
+
     </div>
   )
 }
