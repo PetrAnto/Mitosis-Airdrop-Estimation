@@ -1,7 +1,7 @@
 // src/api/mitosis.js
 
 export async function fetchExpeditionBreakdown(address) {
-  const assets = ["weETH", "ezETH", "weETHs", "unibtc", "unieth", "cmeth"];
+  const assets = ["weETH", "ezETH", "weETHs", "uniBTC", "uniETH", "cmETH"];
   const results = await Promise.all(
     assets.map(async (asset) => {
       try {
