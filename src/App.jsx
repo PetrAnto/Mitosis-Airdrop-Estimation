@@ -1,13 +1,22 @@
 // src/App.jsx
-import React, { useState, useEffect } from 'react';
-import Header from './components/Header';
-import PieChart from './components/PieChart';
-import AllocationCard from './components/AllocationCard';
+import React, { useState, useEffect } from 'react'
+import Header from './components/Header'
+import PieChart from './components/PieChart'
 import {
   fetchExpeditionBreakdown,
   fetchTheoPoints,
   fetchTestnetData,
-} from './api/mitosis';
+} from './api/mitosis'
+
+// Tier mappings
+const TIER_BONUS = { 1: 1.0, 2: 1.2, 3: 1.5, 4: 2.0, 5: 3.0 }
+const TIER_NAMES = {
+  1: 'Bronze',
+  2: 'Silver',
+  3: 'Gold',
+  4: 'Platinum',
+  5: 'Diamond',
+}
 
 // Asset labels
 const ASSET_LABELS = {
@@ -17,34 +26,32 @@ const ASSET_LABELS = {
   uniBTC: 'uniBTC',
   uniETH: 'uniETH',
   cmETH:  'cmETH',
-};
+}
+
+// Denominators
+const EXPEDITION_DENOM = 225_000_000_000 * 1.5
+const TESTNET_POOL = 30_954_838.28
 
 export default function App() {
-  // Main state
-  const [address, setAddress] = useState('');
-  const [assets, setAssets]   = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState(null);
-
-  // FDV slider and percentages
-  const [fdvUsd, setFdvUsd] = useState(150_000_000);
-  const [expPct, setExpPct] = useState(10);
-  const [testPct, setTestPct] = useState(5);
-
-  // Additional rewards
+  const [address, setAddress] = useState('')
+  const [assets, setAssets] = useState([])
+  const [expPct, setExpPct] = useState(10)
+  const [testPct, setTestPct] = useState(5)
   const [bonuses, setBonuses] = useState([
     { key:'morse',      label:'Morse NFT',               supply:2924,   selected:false, pct:1   },
     { key:'partner',    label:'NFT Partner Collections', supply:38888,  selected:false, pct:0.5 },
     { key:'discordMi',  label:'Discord Mi-Role',         supply:100,    selected:false, pct:0.5 },
     { key:'discordInt', label:'Discord Intern-Role',     supply:200,    selected:false, pct:0.5 },
     { key:'kaito',      label:'Kaito Yapper',            supply:1000,   selected:false, pct:2   },
-  ]);
+  ])
+  const [fdvUsd, setFdvUsd] = useState(150_000_000)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
-  // Load data from APIs
   useEffect(() => {
-    if (!address) return;
-    setLoading(true);
-    setError(null);
+    if (!address) return
+    setLoading(true)
+    setError(null)
     Promise.all([
       fetchExpeditionBreakdown(address),
       fetchTheoPoints(address),
@@ -52,45 +59,57 @@ export default function App() {
     ])
       .then(([expList, theo, testnet]) => setAssets([...expList, theo, testnet]))
       .catch(err => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [address]);
+      .finally(() => setLoading(false))
+  }, [address])
 
-  // Separate categories
-  const expeditionAssets = assets.filter(a => Object.keys(ASSET_LABELS).includes(a.asset));
-  const theoAsset    = assets.find(a => a.asset === 'Theo Vault') || {};
-  const testnetAsset = assets.find(a => a.asset === 'Testnet $MITO') || {};
+  // Categorize assets
+  const expeditionAssets = assets.filter(a => Object.keys(ASSET_LABELS).includes(a.asset))
+  const theoAsset = assets.find(a => a.asset === 'Theo Vault') || {}
+  const testnetAsset = assets.find(a => a.asset === 'Testnet $MITO') || {}
 
   // Expedition calculations
-  const totalExpPoints = expeditionAssets.reduce((sum,a) => sum + a.points, 0);
+  const totalExpPoints = expeditionAssets.reduce((sum, a) => sum + a.points, 0)
+  const displayExpPoints = Math.floor(totalExpPoints).toLocaleString('en-US')
   const expeditionTierBoost = expeditionAssets.length
-    ? Math.max(...expeditionAssets.map(a => a.tier || 1))
-    : 1;
-  const expeditionSharePct = (totalExpPoints * expeditionTierBoost) / (225_000_000_000 * 1.5) * 100;
-  const expeditionPoolUsd  = fdvUsd * (expPct / 100);
-  const expeditionUSD      = Math.floor((expeditionSharePct / 100) * expeditionPoolUsd);
+    ? Math.max(...expeditionAssets.map(a => TIER_BONUS[a.tier] || 1))
+    : 1
+  const expeditionSharePct = (totalExpPoints * expeditionTierBoost / EXPEDITION_DENOM) * 100
+  const expeditionPoolUsd = (expPct / 100) * fdvUsd
+  const expeditionUSD = Math.floor((expeditionSharePct / 100) * expeditionPoolUsd)
 
-  // Theo Vault (same FDV%)
-  const theoTier = expeditionAssets.find(a => a.asset==='weETH')?.tier || 1;
+  // Theo Vault calculations
+  const displayTheoPoints = theoAsset.points
+    ? Math.floor(theoAsset.points).toLocaleString('en-US')
+    : '0'
+  const weETH = expeditionAssets.find(a => a.asset === 'weETH')
+  const theoTier = weETH ? weETH.tier : 1
   const theoSharePct = theoAsset.points
-    ? (theoAsset.points * theoTier / (225_000_000_000 * 1.5)) * 100
-    : 0;
-  const theoUSD = Math.floor((theoSharePct / 100) * expeditionPoolUsd);
+    ? (theoAsset.points * TIER_BONUS[theoTier] / EXPEDITION_DENOM) * 100
+    : 0
+  const theoUSD = Math.floor((theoSharePct / 100) * expeditionPoolUsd)
 
   // Testnet calculations
-  const TESTNET_POOL = 30_954_838.28;
-  const testnetUSD = Math.floor(
-    (testnetAsset.points / TESTNET_POOL)
-    * fdvUsd * (testPct / 100)
-  );
+  const testnetUSD = testnetAsset.points
+    ? Math.floor((testnetAsset.points / TESTNET_POOL) * fdvUsd * (testPct / 100))
+    : 0
 
-  // Additional Rewards USD
+  // Additional Rewards calculations
   const additionalUSD = Math.floor(
     bonuses.filter(b => b.selected)
       .reduce((sum, b) => sum + (b.pct / 100) * fdvUsd / b.supply, 0)
-  );
+  )
+  const totalBonusPct = bonuses.reduce((sum, b) => sum + b.pct, 0)
 
   // Totals
-  const totalUSD = expeditionUSD + theoUSD + testnetUSD + additionalUSD;
+  const totalUSD = expeditionUSD + theoUSD + testnetUSD + additionalUSD
+  const totalAirdropPct = (expPct + testPct + totalBonusPct).toFixed(1)
+
+  const toggleBonus = key => setBonuses(bs =>
+    bs.map(b => b.key === key ? { ...b, selected: !b.selected } : b)
+  )
+  const changeBonusPct = (key, pct) => setBonuses(bs =>
+    bs.map(b => b.key === key ? { ...b, pct } : b)
+  )
 
   return (
     <div className="min-h-screen bg-black text-white font-sans">
@@ -98,112 +117,117 @@ export default function App() {
 
       {/* FDV slider */}
       <div className="container mx-auto px-6 py-6">
-        <div className="max-w-md bg-gray-800 rounded-2xl p-4 mx-auto">
+        <div className="max-w-md bg-gray-800 rounded-2xl shadow-lg p-4 mx-auto space-y-2">
           <h2 className="text-xl font-semibold">$MITO Fully Diluted Value (FDV):</h2>
-          <div className="flex items-center space-x-2">
-            <input
-              type="range"
-              min={50e6}
-              max={1e9}
-              step={1e6}
-              value={fdvUsd}
-              onChange={e => setFdvUsd(Number(e.target.value))}
-              className="flex-1 accent-blue-500"
-            />
-            <span>{fdvUsd.toLocaleString('en-US')}$</span>
-          </div>
+          <label className="text-gray-400 text-sm">{fdvUsd.toLocaleString('en-US')}$</label>
+          <input
+            type="range"
+            min={50_000_000}
+            max={1_000_000_000}
+            step={10_000_000}
+            value={fdvUsd}
+            onChange={e => setFdvUsd(Number(e.target.value))}
+            className="w-full accent-blue-500"
+          />
         </div>
       </div>
 
-      <main className="container mx-auto px-6 space-y-8">
-        {/* Wallet input */}
+      <main className="container mx-auto px-6 py-4 space-y-10">
+        {/* Wallet address */}
         <div>
-          <label className="block text-gray-300 mb-1">Wallet Address</label>
+          <label className="block text-gray-300 mb-2">Wallet Address</label>
           <input
             type="text"
             value={address}
-            onChange={e => setAddress(e.target.value)}
+            onChange={e => setAddress(e.target.value.trim())}
             placeholder="0x..."
-            className="w-full p-2 rounded bg-gray-700 text-white"
+            className="w-full p-2 rounded-md bg-gray-700 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         {loading && <p className="text-gray-400">Loading...</p>}
-        {error   && <p className="text-red-500">Error: {error}</p>}
+        {error && <p className="text-red-500">Error: {error}</p>}
 
         {!loading && !error && assets.length > 0 && (
           <>
-            {/* Cards grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <AllocationCard
-                title="Game of Mito Testnet"
-                points={testnetAsset.points}
-                usd={testnetUSD}
-                showSlider
-                pct={testPct}
-                onPctChange={setTestPct}
-              />
+            {/* Top cards */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 justify-items-center">
+              {/* Left column: Testnet & Additional */}
+              <div className="flex flex-col space-y-6 w-full max-w-md">
+                <AllocationCard
+                  title="Game of Mito Testnet"
+                  points={testnetAsset.points}
+                  usd={testnetUSD}
+                  showSlider
+                  pct={testPct}
+                  onPctChange={setTestPct}
+                />
 
-              <AllocationCard
-                title="Mitosis Expedition"
-                points={totalExpPoints}
-                usd={expeditionUSD}
-                showSlider
-                pct={expPct}
-                onPctChange={setExpPct}
-              >
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  {expeditionAssets.map(a => (
-                    <div key={a.asset}>
-                      <p className="font-medium">{ASSET_LABELS[a.asset]}</p>
-                      <p>{Math.floor(a.points).toLocaleString('en-US')}</p>
-                      <p className="text-gray-400">Tier: {a.tier}</p>
+                <AllocationCard title="Additional Rewards" showCheckbox>
+                  {bonuses.map(b => (
+                    <div key={b.key} className="flex items-center justify-between">
+                      <label className="flex items-center space-x-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={b.selected}
+                          onChange={() => toggleBonus(b.key)}
+                          className="accent-blue-500"
+                        />
+                        <span>{b.label}</span>
+                      </label>
+                      <div className="flex items-center space-x-1">
+                        <input
+                          type="range"
+                          min={0}
+                          max={(b.key==='morse'||b.key==='kaito') ? 2 : 1}
+                          step={0.1}
+                          value={b.pct}
+                          onChange={e => changeBonusPct(b.key, Number(e.target.value))}
+                          className="w-20 accent-blue-500"
+                        />
+                        <span className="text-gray-200 text-sm">{b.pct}%</span>
+                      </div>
                     </div>
                   ))}
-                </div>
-              </AllocationCard>
-
-              <AllocationCard
-                title="Theo Vault"
-                points={theoAsset.points}
-                usd={theoUSD}
-              />
-
-              <AllocationCard
-                title="Additional Rewards"
-                showCheckbox
-              >
-                {bonuses.map(b => (
-                  <div key={b.key} className="flex items-center justify-between">
-                    <label className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={b.selected}
-                        onChange={() => setBonuses(bs => bs.map(x => x.key===b.key ? {...x,selected:!x.selected} : x))}
-                        className="accent-blue-500"
-                      />
-                      <span>{b.label}</span>
-                    </label>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="range"
-                        min={0} max={5} step={0.1}
-                        value={b.pct}
-                        onChange={e => setBonuses(bs => bs.map(x=>x.key===b.key?{...x,pct:Number(e.target.value)}:x))}
-                        className="w-24 accent-blue-500"
-                      />
-                      <span>{b.pct}%</span>
-                      <span>({b.supply.toLocaleString('en-US')})</span>
-                    </div>
+                  <div className="border-t border-gray-600 pt-2">
+                    <p className="text-gray-200 text-sm">Total Bonus % FDV: {totalBonusPct.toFixed(1)}%</p>
                   </div>
-                ))}
-              </AllocationCard>
+                </AllocationCard>
+              </div>
+
+              {/* Right column: Expedition & Theo */}
+              <div className="flex flex-col space-y-6 w-full max-w-md">
+                <AllocationCard
+                  title="Mitosis Expedition"
+                  points={displayExpPoints}
+                  usd={expeditionUSD}
+                  showSlider
+                  pct={expPct}
+                  onPctChange={setExpPct}
+                >
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    {expeditionAssets.map(a => (
+                      <div key={a.asset}>
+                        <p className="text-gray-200 font-medium">{ASSET_LABELS[a.asset]}</p>
+                        <p className="text-white">{Math.floor(a.points).toLocaleString('en-US')}</p>
+                        <p className="text-gray-400">Tier: {TIER_NAMES[a.tier]}</p>
+                      </div>
+                    ))}
+                  </div>
+                </AllocationCard>
+
+                <AllocationCard
+                  title="Theo Vault"
+                  points={theoAsset.points}
+                  usd={theoUSD}
+                />
+              </div>
             </div>
 
-            {/* PieChart & Total */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="bg-gray-800 rounded-2xl p-4">
-                <h3 className="text-lg font-semibold mb-2">Allocation Breakdown (USD)</h3>
+            {/* PieChart & Total Estimated Airdrop */}
+            <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8 justify-items-center">
+              <div className="bg-gray-800 rounded-2xl shadow-lg p-6 h-[360px] w-full max-w-md">
+                <h2 className="text-xl font-semibold mb-4 text-gray-200">Allocation Breakdown (USD)</h2>
                 <PieChart
                   expeditionUSD={expeditionUSD}
                   theoUSD={theoUSD}
@@ -212,25 +236,21 @@ export default function App() {
                 />
               </div>
 
-              <div className="bg-gray-800 rounded-2xl p-4">
-                <h3 className="text-lg font-semibold">Total Estimated Airdrop</h3>
-                <p className="text-2xl font-bold my-2">
-                  ${totalUSD.toLocaleString('en-US')}
-                </p>
-                <ul className="list-disc list-inside text-sm text-gray-200">
-                  <li>Expedition: ${expeditionUSD.toLocaleString('en-US')}</li>
-                  <li>Theo Vault: ${theoUSD.toLocaleString('en-US')}</li>
-                  <li>Testnet: ${testnetUSD.toLocaleString('en-US')}</li>
-                  <li>Additional: ${additionalUSD.toLocaleString('en-US')}</li>
-                </ul>
-                <p className="mt-2 font-medium">
-                  Total % FDV for Airdrop: {(expPct + testPct + bonuses.reduce((s,b)=>s+b.pct,0)).toFixed(1)}%
-                </p>
+              <div className="bg-gray-700 rounded-2xl shadow-lg p-6 w-full max-w-md">
+                <h2 className="text-lg font-bold text-gray-200 mb-2">Total Estimated Airdrop</h2>
+                <p className="text-3xl font-semibold mb-2">${totalUSD.toLocaleString('en-US')}</p>
+                <div className="space-y-1 text-gray-200 text-sm">
+                  <p>• Expedition: ${expeditionUSD.toLocaleString('en-US')}</p>
+                  <p>• Theo Vault: ${theoUSD.toLocaleString('en-US')}</p>
+                  <p>• Testnet: ${testnetUSD.toLocaleString('en-US')}</p>
+                  <p>• Additional Rewards: ${additionalUSD.toLocaleString('en-US')}</p>
+                </div>
+                <p className="pt-2 font-medium">Total % FDV for Airdrop: {totalAirdropPct}%</p>
               </div>
             </div>
           </>
         )}
       </main>
     </div>
-  );
+  )
 }
