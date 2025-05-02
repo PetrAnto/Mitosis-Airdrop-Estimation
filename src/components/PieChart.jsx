@@ -1,19 +1,23 @@
-// src/components/PieChart.jsx
-
 import React from 'react';
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 import { Pie } from 'react-chartjs-2';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 
+// Enregistre une fois pour toutes les composants Chart.js
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-export default function PieChart({ expeditionUSD, theoUSD, testnetUSD, additionalUSD, showLabels }) {
+export default function PieChart({ expeditionUSD, testnetUSD }) {
   const data = {
-    labels: showLabels ? ['Expedition', 'Theo Vault', 'Testnet', 'Additional'] : undefined,
+    labels: ['Expedition USD', 'Testnet USD'],
     datasets: [
       {
-        data: [expeditionUSD, theoUSD, testnetUSD, additionalUSD],
-        backgroundColor: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b'],
-        borderWidth: 1,
+        data: [expeditionUSD, testnetUSD],
+        backgroundColor: ['#4ade80', '#60a5fa'],
+        borderWidth: 0,
       },
     ],
   };
@@ -23,24 +27,27 @@ export default function PieChart({ expeditionUSD, theoUSD, testnetUSD, additiona
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: !!showLabels,
-        position: 'bottom',
+        position: 'top',
         labels: {
-          color: 'white',
+          color: '#FFFFFF',
+          font: { size: 12 },
         },
       },
       tooltip: {
         callbacks: {
-          label: function (context) {
-            const value = context.raw;
-            const total = context.chart._metasets[0].total;
-            const percentage = ((value / total) * 100).toFixed(1);
-            return `${context.label}: $${value.toLocaleString('fr-FR')} (${percentage}%)`;
+          label: ({ label, parsed, dataset }) => {
+            const total = dataset.data.reduce((sum, v) => sum + v, 0);
+            const pct = total ? ((parsed / total) * 100).toFixed(2) : 0;
+            return `${label}: $${parsed.toFixed(2)} (${pct}%)`;
           },
         },
       },
     },
   };
 
-  return <Pie data={data} options={options} />;
+  return (
+    <div className="w-full h-full">
+      <Pie data={data} options={options} />
+    </div>
+  );
 }
