@@ -46,9 +46,9 @@ export default function App() {
   const [showDetails, setShowDetails] = useState(false)
 
   // Constants (editable in details)
-  const [expDenomBase, setExpDenomBase]       = useState(225_000_000_000)
-  const [expDenomFactor, setExpDenomFactor]   = useState(1.5)
-  const [testnetPool, setTestnetPool]         = useState(30_954_838.28)
+  const [expDenomBase, setExpDenomBase]     = useState(225_000_000_000)
+  const [expDenomFactor, setExpDenomFactor] = useState(1.5)
+  const [testnetPool, setTestnetPool]       = useState(30_954_838.28)
 
   // Fetch APIs
   useEffect(() => {
@@ -293,97 +293,11 @@ export default function App() {
               </button>
 
               {showDetails && (
-                <div className="bg-gray-800 rounded-2xl p-4 text-sm space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-200">Calculation Details</h3>
-                  
-                  {/* Expedition */}
-                  <div>
-                    <h4 className="font-semibold text-gray-200">Expedition</h4>
-                    <p>
-                      <code>
-                        share% = (totalExpPoints × expeditionTierBoost) / (expDenomBase × expDenomFactor) × 100
-                      </code>
-                    </p>
-                    <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0 mt-2">
-                      <label className="flex-1">
-                        Base denom ∑P:
-                        <input 
-                          type="number"
-                          value={expDenomBase}
-                          onChange={e => setExpDenomBase(Number(e.target.value))}
-                          className="ml-2 p-1 rounded bg-gray-700"
-                        />
-                      </label>
-                      <label className="flex-1">
-                        Tier factor:
-                        <input 
-                          type="number"
-                          step="0.1"
-                          value={expDenomFactor}
-                          onChange={e => setExpDenomFactor(Number(e.target.value))}
-                          className="ml-2 p-1 rounded bg-gray-700"
-                        />
-                      </label>
-                    </div>
-                  </div>
-
-                  {/* Theo Vault */}
-                  <div>
-                    <h4 className="font-semibold text-gray-200">Theo Vault</h4>
-                    <p>
-                      <code>
-                        share% = (theoPoints × tierBonus) / (expDenomBase × expDenomFactor) × 100
-                      </code>
-                    </p>
-                  </div>
-
-                  {/* Testnet */}
-                  <div>
-                    <h4 className="font-semibold text-gray-200">Testnet</h4>
-                    <p>
-                      <code>
-                        USD = (testnetPoints / testnetPool) × FDV × testPct%
-                      </code>
-                    </p>
-                    <label>
-                      Pool tokens:
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={testnetPool}
-                        onChange={e => setTestnetPool(Number(e.target.value))}
-                        className="ml-2 p-1 rounded bg-gray-700"
-                      />
-                    </label>
-                  </div>
-
-                  {/* Additional Rewards */}
-                  <div>
-                    <h4 className="font-semibold text-gray-200">Additional Rewards</h4>
-                    <p>
-                      <code>
-                        USD = Σ (bonus.pct% × FDV ÷ bonus.supply)
-                      </code>
-                    </p>
-                    <div className="mt-2 space-y-2">
-                      {bonuses.map(b => (
-                        <label key={b.key} className="flex items-center space-x-2 text-sm">
-                          {b.label} supply:
-                          <input
-                            type="number"
-                            value={b.supply}
-                            onChange={e => {
-                              const v = Number(e.target.value)
-                              setBonuses(bs => bs.map(x => x.key===b.key ? { ...x, supply:v } : x))
-                            }}
-                            className="ml-2 p-1 rounded bg-gray-700"
-                          />
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
+                <div className="bg-gray-800 rounded-2xl p-4 text-sm space-y-6">
+                  <h3 className="text-lg font-semibold text-gray-200">
+                    Calculation Details
+                  </>
+                )}
             </div>
           </>
         )}
