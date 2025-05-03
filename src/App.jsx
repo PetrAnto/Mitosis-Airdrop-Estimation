@@ -292,98 +292,71 @@ export default function App() {
                 {showDetails ? 'Hide calculation details' : 'Show calculation details'}
               </button>
 
-              {showDetails && (
-                <div className="bg-gray-800 rounded-2xl p-4 text-sm space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-200">Calculation Details</h3>
-                  
-                  {/* Expedition */}
-                  <div>
-                    <h4 className="font-semibold text-gray-200">Expedition</h4>
-                    <p>
-                      <code>
-                        share% = (totalExpPoints × expeditionTierBoost) / (expDenomBase × expDenomFactor) × 100
-                      </code>
-                    </p>
-                    <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0 mt-2">
-                      <label className="flex-1">
-                        Base denom ∑P:
-                        <input 
-                          type="number"
-                          value={expDenomBase}
-                          onChange={e => setExpDenomBase(Number(e.target.value))}
-                          className="ml-2 p-1 rounded bg-gray-700"
-                        />
-                      </label>
-                      <label className="flex-1">
-                        Tier factor:
-                        <input 
-                          type="number"
-                          step="0.1"
-                          value={expDenomFactor}
-                          onChange={e => setExpDenomFactor(Number(e.target.value))}
-                          className="ml-2 p-1 rounded bg-gray-700"
-                        />
-                      </label>
-                    </div>
-                  </div>
+{showDetails && (
+  <div className="bg-gray-800 rounded-2xl p-4 text-sm space-y-6">
+    <h3 className="text-lg font-semibold text-gray-200">
+      Calculation Details
+    </h3>
 
-                  {/* Theo Vault */}
-                  <div>
-                    <h4 className="font-semibold text-gray-200">Theo Vault</h4>
-                    <p>
-                      <code>
-                        share% = (theoPoints × tierBonus) / (expDenomBase × expDenomFactor) × 100
-                      </code>
-                    </p>
-                  </div>
+    {/* Expedition formula */}
+    <div>
+      <h4 className="font-semibold text-gray-200">Expedition share %</h4>
+      <div className="max-w-xs mx-auto bg-gray-700 rounded-lg overflow-hidden">
+        <div className="px-4 py-2 text-center text-white">
+          totalExpPoints × expeditionTierBoost
+        </div>
+        <div className="border-t border-gray-600"></div>
+        <div className="px-4 py-2 text-center text-white">
+          expDenomBase × expDenomFactor
+        </div>
+      </div>
+      <div className="text-center text-gray-400 mt-1">× 100</div>
+    </div>
 
-                  {/* Testnet */}
-                  <div>
-                    <h4 className="font-semibold text-gray-200">Testnet</h4>
-                    <p>
-                      <code>
-                        USD = (testnetPoints / testnetPool) × FDV × testPct%
-                      </code>
-                    </p>
-                    <label>
-                      Pool tokens:
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={testnetPool}
-                        onChange={e => setTestnetPool(Number(e.target.value))}
-                        className="ml-2 p-1 rounded bg-gray-700"
-                      />
-                    </label>
-                  </div>
+    {/* Theo Vault formula */}
+    <div>
+      <h4 className="font-semibold text-gray-200">Theo Vault share %</h4>
+      <div className="max-w-xs mx-auto bg-gray-700 rounded-lg overflow-hidden">
+        <div className="px-4 py-2 text-center text-white">
+          theoPoints × tierBonus
+        </div>
+        <div className="border-t border-gray-600"></div>
+        <div className="px-4 py-2 text-center text-white">
+          expDenomBase × expDenomFactor
+        </div>
+      </div>
+      <div className="text-center text-gray-400 mt-1">× 100</div>
+    </div>
 
-                  {/* Additional Rewards */}
-                  <div>
-                    <h4 className="font-semibold text-gray-200">Additional Rewards</h4>
-                    <p>
-                      <code>
-                        USD = Σ (bonus.pct% × FDV ÷ bonus.supply)
-                      </code>
-                    </p>
-                    <div className="mt-2 space-y-2">
-                      {bonuses.map(b => (
-                        <label key={b.key} className="flex items-center space-x-2 text-sm">
-                          {b.label} supply:
-                          <input
-                            type="number"
-                            value={b.supply}
-                            onChange={e => {
-                              const v = Number(e.target.value)
-                              setBonuses(bs => bs.map(x => x.key===b.key ? { ...x, supply:v } : x))
-                            }}
-                            className="ml-2 p-1 rounded bg-gray-700"
-                          />
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
+    {/* Testnet formula */}
+    <div>
+      <h4 className="font-semibold text-gray-200">Testnet USD</h4>
+      <div className="max-w-xs mx-auto bg-gray-700 rounded-lg overflow-hidden">
+        <div className="px-4 py-2 text-center text-white">
+          testnetPoints ÷ testnetPool
+        </div>
+        <div className="border-t border-gray-600"></div>
+        <div className="px-4 py-2 text-center text-white">
+          FDV × testPct%
+        </div>
+      </div>
+    </div>
+
+    {/* Additional Rewards formula */}
+    <div>
+      <h4 className="font-semibold text-gray-200">Additional Rewards USD</h4>
+      <div className="max-w-xs mx-auto bg-gray-700 rounded-lg overflow-hidden">
+        <div className="px-4 py-2 text-center text-white">
+          Σ (bonus.pct% × FDV)
+        </div>
+        <div className="border-t border-gray-600"></div>
+        <div className="px-4 py-2 text-center text-white">
+          bonus.supply
+        </div>
+      </div>
+    </div>
+  </div>
+)}
             </div>
           </>
         )}
