@@ -1,3 +1,9 @@
+Thought for a couple of seconds
+
+
+Voici le fichier **App.jsx** complet corrigé : la balise `<h3>` est correctement fermée et tout le bloc de « Calculation Details » a été replacé. Copiez-collez simplement ce code dans votre projet.
+
+```jsx
 // src/App.jsx
 import React, { useState, useEffect } from 'react'
 import Header from './components/Header'
@@ -296,8 +302,93 @@ export default function App() {
                 <div className="bg-gray-800 rounded-2xl p-4 text-sm space-y-6">
                   <h3 className="text-lg font-semibold text-gray-200">
                     Calculation Details
-                  </>
-                )}
+                  </h3>
+
+                  {/* Expedition Formula */}
+                  <div>
+                    <h4 className="font-semibold text-gray-200">Expedition Formula</h4>
+                    <p className="text-gray-400">
+                      <em>Share %</em> = <code>(totalExpPoints&nbsp;×&nbsp;expeditionTierBoost)</code><br/>
+                      <span className="ml-8">——————————————— × 100</span><br/>
+                      <code>{expDenomBase.toLocaleString()}&nbsp;×&nbsp;{expDenomFactor}</code>
+                    </p>
+                    <div className="mt-2 grid grid-cols-2 gap-4">
+                      <label className="flex flex-col">
+                        Base denominator (∑P):
+                        <input
+                          type="number"
+                          value={expDenomBase}
+                          onChange={e => setExpDenomBase(+e.target.value)}
+                          className="mt-1 p-1 rounded bg-gray-700"
+                        />
+                      </label>
+                      <label className="flex flex-col">
+                        Tier factor:
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={expDenomFactor}
+                          onChange={e => setExpDenomFactor(+e.target.value)}
+                          className="mt-1 p-1 rounded bg-gray-700"
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Theo Vault Formula */}
+                  <div>
+                    <h4 className="font-semibold text-gray-200">Theo Vault Formula</h4>
+                    <p className="text-gray-400">
+                      <em>Share %</em> = <code>(theoPoints&nbsp;×&nbsp;tierBonus)</code><br/>
+                      <span className="ml-8">——————————————— × 100</span><br/>
+                      <code>{expDenomBase.toLocaleString()}&nbsp;×&nbsp;{expDenomFactor}</code>
+                    </p>
+                  </div>
+
+                  {/* Testnet USD Formula */}
+                  <div>
+                    <h4 className="font-semibold text-gray-200">Testnet USD Formula</h4>
+                    <p className="text-gray-400">
+                      USD = <code>(testnetPoints ÷ poolSize)</code><br/>
+                      <span className="ml-8">× FDV × testPct%</span>
+                    </p>
+                    <label className="flex items-center space-x-2 mt-2">
+                      Pool size:
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={testnetPool}
+                        onChange={e => setTestnetPool(+e.target.value)}
+                        className="ml-2 p-1 rounded bg-gray-700"
+                      />
+                    </label>
+                  </div>
+
+                  {/* Additional Rewards Formula */}
+                  <div>
+                    <h4 className="font-semibold text-gray-200">Additional Rewards Formula</h4>
+                    <p className="text-gray-400">
+                      USD = Σ <code>(bonusPct% × FDV ÷ supply)</code>
+                    </p>
+                    <div className="mt-2 space-y-2">
+                      {bonuses.map(b => (
+                        <label key={b.key} className="flex items-center space-x-2 text-sm">
+                          {b.label} supply:
+                          <input
+                            type="number"
+                            value={b.supply}
+                            onChange={e => {
+                              const val = +e.target.value
+                              setBonuses(bs => bs.map(x => x.key===b.key ? { ...x, supply: val } : x))
+                            }}
+                            className="ml-2 p-1 rounded bg-gray-700"
+                          />
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </>
         )}
@@ -305,3 +396,4 @@ export default function App() {
     </div>
   )
 }
+```
