@@ -1,0 +1,17 @@
+// vercel.json
+{
+  "rewrites": [
+    {
+      "source": "/api/expedition/:path*",
+      "destination": "https://api.expedition.mitosis.org/v1/status/:path*"
+    },
+    {
+      "source": "/api/theo/:path*",
+      "destination": "https://matrix-proxy.mitomat.workers.dev/theo/portfolio/:path*"
+    },
+    {
+      "source": "/api/testnet/:path*",
+      "destination": "https://mito-api.customrpc.workers.dev/api/wallet/:path*"
+    }
+  ]
+}
