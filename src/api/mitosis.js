@@ -1,21 +1,20 @@
 // src/api/mitosis.js
 
-// Helper functions to normalize addresses
-// Helper functions to normalize addresses
+// src/api/mitosis.js
+
+// Helper function to normalize wallet addresses: lowercase and trim
 const normalizeAddress = (address) => address.trim().toLowerCase();
- = (address) =>
-  address.trim().toLowerCase();
 
 /**
  * Fetches Expedition breakdown for all assets
  */
 export async function fetchExpeditionBreakdown(address) {
   const assets = ["weETH", "ezETH", "weETHs", "uniBTC", "uniETH", "cmETH"];
-  const expAddr = normalizeExpAddress(address);
+  const lower = normalizeAddress(address);
   const results = await Promise.all(
     assets.map(async (asset) => {
       try {
-        const url = `https://api.expedition.mitosis.org/v1/status/${expAddr}?asset=${asset}`;
+        const url = `https://api.expedition.mitosis.org/v1/status/${lower}?asset=${asset}`;
         const res = await fetch(url);
         if (!res.ok) throw new Error(`Expedition HTTP ${res.status}`);
         const data = await res.json();
