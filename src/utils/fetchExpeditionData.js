@@ -1,3 +1,5 @@
+import { API_EXPEDITION } from '../config';
+
 const assetList = ["weETH", "ezETH", "weETHs", "uniBTC", "uniETH", "cmETH"];
 
 export const tierMap = {
