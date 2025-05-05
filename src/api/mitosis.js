@@ -15,7 +15,7 @@ export async function fetchExpeditionBreakdown(address) {
 
   const results = await Promise.all(
     assets.map(async (asset) => {
-      const url = `/api/expedition/${normalized}?asset=${asset}`;
+      const url = `${API_EXPEDITION}/${normalized}?asset=${asset}`;
       console.log(`→ Fetch Expedition ${asset}:`, url);
       try {
         const res  = await fetch(url);
