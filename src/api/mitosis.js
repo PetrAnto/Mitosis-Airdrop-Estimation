@@ -5,7 +5,7 @@
  *   GET /api/expedition/:address?asset=<asset>
  * Retourne un tableau [{ asset, points, tier }, …]
  */
-import { API_THEO, API_TESTNET } from '../config';
+import { API_EXPEDITION, API_THEO, API_TESTNET } from '../config';
 
 export async function fetchExpeditionBreakdown(address) {
   const normalized = address.toLowerCase();
