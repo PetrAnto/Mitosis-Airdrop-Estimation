@@ -44,7 +44,7 @@ export async function fetchExpeditionBreakdown(address) {
 export async function fetchTheoPoints(address) {
   // On peut lowercase ici car l'API Theo n'est pas case-sensitive
   const normalized = address.toLowerCase();
-  const url        = `/api/theo/${normalized}`;
+  const url = `${API_THEO}/${normalized}`;
 
   console.log("🔍 [fetchTheo] URL =", url);
   try {
