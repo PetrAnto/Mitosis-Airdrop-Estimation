@@ -68,7 +68,7 @@ export async function fetchTheoPoints(address) {
  */
 export async function fetchTestnetData(address) {
   // Ici on garde la casse fournie (ex: "0xF11B04D926A5Ca738Dc893684986BaD799AF941F")
-  const url = `/api/testnet/${address}`;
+  const url = `${API_TESTNET}/${address}`;
 
   console.log("🔍 [fetchTestnet] URL =", url);
   try {
