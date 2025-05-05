@@ -1,90 +1,68 @@
 // src/api/mitosis.js
 
+// Normalise wallet address to lowercase for all API calls
+tconst normalize = (address) => address.trim().toLowerCase();
+
 /**
- * Récupère pour chaque asset Expedition via le proxy Vite :
- *   GET /api/expedition/:address?asset=<asset>
- * Retourne un tableau [{ asset, points, tier }, …]
+ * Fetches Expedition breakdown for all assets
  */
 export async function fetchExpeditionBreakdown(address) {
-  const normalized = address.toLowerCase();
-  const assets     = ["weETH", "ezETH", "weETHs", "uniBTC", "uniETH", "cmETH"];
-
-  console.log("🔍 [fetchExpedition] address =", normalized);
-
+  const assets = ["weETH", "ezETH", "weETHs", "uniBTC", "uniETH", "cmETH"];
+  const lower = normalize(address);
   const results = await Promise.all(
     assets.map(async (asset) => {
-      const url = `/api/expedition/${normalized}?asset=${asset}`;
-      console.log(`→ Fetch Expedition ${asset}:`, url);
       try {
-        const res  = await fetch(url);
+        const url = `https://api.expedition.mitosis.org/v1/status/${lower}?asset=${asset}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        console.log(`← Expedition ${asset} response:`, data);
-
-        const points = parseFloat(data?.mitoPoints?.total || 0);
+        const points = parseFloat(data?.mitoPoints?.total || '0');
         const tier   = data?.tier?.tier || 1;
         return { asset, points, tier };
       } catch (e) {
-        console.error(`✖ Expedition fetch failed for ${asset}`, e);
+        console.error("Expedition fetch failed:", asset, e);
         return { asset, points: 0, tier: 1 };
       }
     })
   );
-
-  console.log("✅ [fetchExpedition] results:", results);
   return results;
 }
 
 /**
- * Récupère les points Theo Vault via le proxy Vite :
- *   GET /api/theo/:address
- * Retourne { asset: "Theo Vault", points }
+ * Fetches Theo Vault points
  */
 export async function fetchTheoPoints(address) {
-  // On peut lowercase ici car l'API Theo n'est pas case-sensitive
-  const normalized = address.toLowerCase();
-  const url        = `/api/theo/${normalized}`;
-
-  console.log("🔍 [fetchTheo] URL =", url);
+  const lower = normalize(address);
   try {
-    const res  = await fetch(url);
+    const url = `https://matrix-proxy.mitomat.workers.dev/theo/portfolio/${lower}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
-    console.log("← Theo Vault response:", json);
-
-    const points = parseFloat(json[0]?.mitoPoints || 0);
-    console.log("✅ [fetchTheo] points =", points);
-    return { asset: "Theo Vault", points };
+    // assume first entry
+    const entry = Array.isArray(json) ? json[0] : {};
+    const points = parseFloat(entry.mitoPoints || '0');
+    return { asset: 'Theo Vault', points };
   } catch (e) {
-    console.error("✖ Theo fetch failed", e);
-    return { asset: "Theo Vault", points: 0 };
+    console.error("Theo fetch failed", e);
+    return { asset: 'Theo Vault', points: 0 };
   }
 }
 
 /**
- * Récupère le total_balance du Testnet $MITO via le proxy Vite :
- *   GET /api/testnet/:address
- * Retourne { asset: "Testnet $MITO", points }
+ * Fetches Testnet $MITO data
  */
 export async function fetchTestnetData(address) {
-  // Ici on garde la casse fournie (ex: "0xF11B04D926A5Ca738Dc893684986BaD799AF941F")
-  const url = `/api/testnet/${address}`;
-
-  console.log("🔍 [fetchTestnet] URL =", url);
+  const lower = normalize(address);
   try {
-    const res  = await fetch(url);
+    const url = `https://mito-api.customrpc.workers.dev/api/wallet/${lower}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
-    console.log("← Testnet raw response:", json);
-
-    // On vérifie success avant d'extraire le total_balance
-    if (!json.success) {
-      console.warn("⚠ Testnet API returned success=false:", json.error);
-      return { asset: "Testnet $MITO", points: 0 };
-    }
-
-    const points = parseFloat(json.data?.total_balance || 0);
-    console.log("✅ [fetchTestnet] points =", points);
-    return { asset: "Testnet $MITO", points };
+    if (!json.success) throw new Error('Testnet API returned success=false');
+    const points = parseFloat(json.data?.total_balance || '0');
+    return { asset: 'Testnet $MITO', points };
   } catch (e) {
-    console.error("✖ Testnet fetch failed", e);
-    return { asset: "Testnet $MITO", points: 0 };
+    console.error("Testnet fetch failed", e);
+    return { asset: 'Testnet $MITO', points: 0 };
   }
 }
