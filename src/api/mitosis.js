@@ -1,7 +1,7 @@
 // src/api/mitosis.js
 
-// Normalise wallet address to lowercase for all API calls
-tconst normalize = (address) => address.trim().toLowerCase();
+// Normalize wallet address to lowercase for all API calls
+const normalize = (address) => address.trim().toLowerCase();
 
 /**
  * Fetches Expedition breakdown for all assets
