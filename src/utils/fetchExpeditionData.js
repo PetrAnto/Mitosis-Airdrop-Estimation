@@ -14,7 +14,7 @@ export async function fetchExpeditionData(wallet) {
   const lowerWallet = wallet.toLowerCase();
 
   const fetches = assetList.map(async (asset) => {
-    const url = `https://api.expedition.mitosis.org/v1/status/${lowerWallet}?asset=${asset}`;
+    const url = `${API_EXPEDITION}/${lowerWallet}?asset=${asset}`;
     try {
       const response = await fetch(url);
       if (!response.ok) throw new Error("Network error");
