@@ -1,12 +1,10 @@
 // src/api/mitosis.js
 
-// src/api/mitosis.js
-
 // Helper function to normalize wallet addresses: lowercase and trim
 const normalizeAddress = (address) => address.trim().toLowerCase();
 
 /**
- * Fetches Expedition breakdown for all assets
+ * Fetches Expedition breakdown for all assets (via proxy to avoid CORS)
  */
 export async function fetchExpeditionBreakdown(address) {
   const assets = ["weETH", "ezETH", "weETHs", "uniBTC", "uniETH", "cmETH"];
@@ -14,14 +12,13 @@ export async function fetchExpeditionBreakdown(address) {
   const results = await Promise.all(
     assets.map(async (asset) => {
       try {
-        // Use proxy to avoid CORS issues
         const url = `https://workermito.mitoapi.workers.dev/expedition-rank?address=${lower}&asset=${asset}`;
         const res = await fetch(url);
         if (!res.ok) throw new Error(`Expedition proxy HTTP ${res.status}`);
         const data = await res.json();
         // proxy returns data.item.totalPoints and data.item.rank
         const points = parseFloat(data?.item?.totalPoints || '0');
-        const tier = parseInt(data?.item?.rank, 10) || 1;
+        const tier   = parseInt(data?.item?.rank, 10) || 1;
         return { asset, points, tier };
       } catch (e) {
         console.error("Expedition fetch failed for asset", asset, e);
@@ -30,7 +27,6 @@ export async function fetchExpeditionBreakdown(address) {
     })
   );
   return results;
-}
 }
 
 /**
