@@ -14,12 +14,14 @@ export async function fetchExpeditionBreakdown(address) {
   const results = await Promise.all(
     assets.map(async (asset) => {
       try {
-        const url = `https://api.expedition.mitosis.org/v1/status/${lower}?asset=${asset}`;
+        // Use proxy to avoid CORS issues
+        const url = `https://workermito.mitoapi.workers.dev/expedition-rank?address=${lower}&asset=${asset}`;
         const res = await fetch(url);
-        if (!res.ok) throw new Error(`Expedition HTTP ${res.status}`);
+        if (!res.ok) throw new Error(`Expedition proxy HTTP ${res.status}`);
         const data = await res.json();
-        const points = parseFloat(data?.mitoPoints?.total || '0');
-        const tier   = data?.tier?.tier || 1;
+        // proxy returns data.item.totalPoints and data.item.rank
+        const points = parseFloat(data?.item?.totalPoints || '0');
+        const tier = parseInt(data?.item?.rank, 10) || 1;
         return { asset, points, tier };
       } catch (e) {
         console.error("Expedition fetch failed for asset", asset, e);
@@ -28,6 +30,7 @@ export async function fetchExpeditionBreakdown(address) {
     })
   );
   return results;
+}
 }
 
 /**
