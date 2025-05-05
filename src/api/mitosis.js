@@ -1,9 +1,9 @@
 // src/api/mitosis.js
 
 // Helper functions to normalize addresses
-const normalizeExpAddress = (address) =>
-  address.trim().toLowerCase().replace(/^0x/, '');
-const normalizeAddress = (address) =>
+// Helper functions to normalize addresses
+const normalizeAddress = (address) => address.trim().toLowerCase();
+ = (address) =>
   address.trim().toLowerCase();
 
 /**
