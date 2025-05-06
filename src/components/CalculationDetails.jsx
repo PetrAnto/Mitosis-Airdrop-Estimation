@@ -82,15 +82,15 @@ export default function CalculationDetails({
 
       {/* Theo Vault */}
       <section className="bg-gray-800 rounded-2xl p-4">
-        <h3 className="text-xl font-semibold text-gray-200">Theo Vault</h3>
-        <p className="mt-2 text-gray-200">
-          Same FDV% formula as Expedition, but using your Theo points and your tier bonus.
-        </p>
-        <BlockMath
-          math={String.raw`\text{Your share} \;=\;
-            \frac{\text{your points}\times\text{your weETH tier bonus}}
-                 {\text{total points from everyone}}`}
-        />
+  <h3 className="text-xl font-semibold text-gray-200">Theo Vault</h3>
+  <p className="mt-2 text-gray-200">
+    Same FDV% formula as Expedition, but using your Theo points and your tier bonus.
+  </p>
+
+  <BlockMath
+    math={String.raw`\text{Your share}\;=\;\frac{\text{your points}\times\text{your weETH tier bonus}}{\text{total points from everyone}}`}
+  />
+</section>
 
         <details className="mt-4 bg-gray-700 rounded">
           <summary className="cursor-pointer px-4 py-2 text-blue-400">
