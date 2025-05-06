@@ -33,7 +33,7 @@ export default function CalculationDetails({
           Tier is extracted from weETH campaign to suit most holders.
         </p>
         <BlockMath
-          math={String.raw`\text{Your share}\;=\;\frac{\text{your points}\times\text{your weETH tier bonus}}{\text{total points from everyone (with their tier bonuses)}}`}
+          math={String.raw`\text{Your share}\;=\;\frac{\text{your MITO Expedition points}\times\text{your weETH tier bonus}}{\text{total points from everyone (with their tier bonuses)}}`}
         />
         {/* modify constants drawer */}
         <details className="mt-4 bg-gray-700 rounded">
@@ -84,7 +84,7 @@ export default function CalculationDetails({
         </p>
 
         <BlockMath
-          math={String.raw`\text{Your share}\;=\;\frac{\text{your points}\times\text{your weETH tier bonus}}{\text{total points from everyone (with their tier bonuses)}}`}
+          math={String.raw`\text{Your share}\;=\;\frac{\text{your MITO points from Teho Vault}\times\text{your weETH tier bonus}}{\text{total points from everyone (with their tier bonuses)}}`}
         />
 
         <details className="mt-4 bg-gray-700 rounded">
@@ -143,7 +143,7 @@ export default function CalculationDetails({
           Each selected bonus adds FDV% based on eligible supply (NFTs, Discord roles, etc...).
         </p>
         <BlockMath
-          math={String.raw`\text{Your share}\;=\;\frac{1}{\text{total supply eligible to the bonus}}`}
+          math={String.raw`\text{Your share (for each bonus)}\;=\;\frac{1}{\text{total supply eligible to the bonus}}`}
         />
 
         <details className="mt-4 bg-gray-700 rounded">
