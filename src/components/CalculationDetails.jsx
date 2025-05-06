@@ -26,7 +26,7 @@ export default function CalculationDetails({
       <section className="bg-gray-800 rounded-2xl p-4">
         <h3 className="text-xl font-semibold text-gray-200">Expedition</h3>
         <p className="mt-2 text-gray-200">
-          We calculate your share by weighting <em>total points</em> with your <em>tier bonus</em>.
+          We calculate your share by weighting <em>total points</em> with your <em>tier bonus</em>. Tier is extracted from weETH campaign to suit most holders.
         </p>
         <img
           src="/public/expedition-basic-formula-1.png"
@@ -37,11 +37,11 @@ export default function CalculationDetails({
         {/* modify constants drawer */}
         <details className="mt-4 bg-gray-700 rounded">
           <summary className="cursor-pointer px-4 py-2 text-blue-400">
-            Modify Expedition Constants
+            Modify Expedition Constants (see details for more explanations)
           </summary>
           <div className="p-4 space-y-3">
             <label className="flex items-center space-x-2 text-gray-200">
-              <span>Base ∑P:</span>
+              <span>Total Supply of Expedition Points:</span>
               <input
                 type="number"
                 value={expDenomBase}
@@ -50,7 +50,7 @@ export default function CalculationDetails({
               />
             </label>
             <label className="flex items-center space-x-2 text-gray-200">
-              <span>Tier factor:</span>
+              <span>Average Tier factor:</span>
               <input
                 type="number"
                 step="0.1"
