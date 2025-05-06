@@ -70,9 +70,15 @@ export default function CalculationDetails({
         {/* more details drawer */}
         <details className="mt-4 bg-gray-700 rounded">
           <summary className="cursor-pointer px-4 py-2 text-blue-400">More details</summary>
-          <div className="p-4 text-gray-200 space-y-2">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{mdText}</ReactMarkdown>
-          </div>
+<div className="p-4">
+  <ReactMarkdown
+    className="prose prose-invert"
+    remarkPlugins={[remarkGfm]}
+  >
+    {mdText}
+  </ReactMarkdown>
+</div>
+
         </details>
       </section>
 
