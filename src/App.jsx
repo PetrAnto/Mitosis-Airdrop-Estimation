@@ -299,14 +299,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* Calculation details */}
-            <div className="container mx-auto px-6 py-4">
-              <button
-                onClick={()=>setShowDetails(v=>!v)}
-                className="text-blue-400 underline mb-2"
-              >
-                {showDetails ? 'Hide calculation details' : 'Show calculation details'}
-              </button>
+{/* Show/Hide calculation details */}
 <div className="container mx-auto px-6 py-4">
   <button
     onClick={() => setShowDetails(v => !v)}
@@ -327,7 +320,7 @@ export default function App() {
       setBonuses={setBonuses}
     />
   )}
-            </div>
+</div>
           </>
         )}
       </main>
