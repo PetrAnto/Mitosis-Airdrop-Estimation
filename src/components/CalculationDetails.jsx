@@ -29,7 +29,7 @@ export default function CalculationDetails({
           We calculate your share by weighting your <em>total points</em> with your <em>tier bonus</em>.<br/> Tier is extracted from weETH campaign to simplify calculation and suit most holders.
         </p>
         <img
-          src="/public/expedition-basic-formula-2.png"
+          src="/public/expedition-basic-formula-3.png"
           alt="Expedition formula"
           className="mx-auto w-2/3 rounded mt-2 shadow-md"
         />
