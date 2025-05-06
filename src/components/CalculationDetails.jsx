@@ -32,12 +32,9 @@ export default function CalculationDetails({
           <em>tier bonus</em>.<br />
           Tier is extracted from weETH campaign to suit most holders.
         </p>
-        <img
-          src="/images/expedition-basic-formula-3.png"
-          alt="Expedition formula"
-          className="mx-auto w-2/3 rounded mt-2 shadow-md"
+        <BlockMath
+          math={String.raw`\text{Your share}\;=\;\frac{\text{your points}\times\text{your weETH tier bonus}}{\text{total points from everyone (with their tier bonuses)}}`}
         />
-
         {/* modify constants drawer */}
         <details className="mt-4 bg-gray-700 rounded">
           <summary className="cursor-pointer px-4 py-2 text-blue-400">
@@ -87,7 +84,7 @@ export default function CalculationDetails({
         </p>
 
         <BlockMath
-          math={String.raw`\text{Your share}\;=\;\frac{\text{your points}\times\text{your weETH tier bonus}}{\text{total points from everyone}}`}
+          math={String.raw`\text{Your share}\;=\;\frac{\text{your points}\times\text{your weETH tier bonus}}{\text{total points from everyone (with their tier bonuses)}}`}
         />
 
         <details className="mt-4 bg-gray-700 rounded">
@@ -111,10 +108,8 @@ export default function CalculationDetails({
         <p className="mt-2 text-gray-200 text-center">
           We convert your Test $MITO balance to USD based on pool size and testnet % (see formula).
         </p>
-        <img
-          src="/images/testnet-formula.png"
-          alt="Testnet formula"
-          className="mx-auto w-2/3 rounded mt-2 shadow-md"
+        <BlockMath
+          math={String.raw`\text{Your share}\;=\;\frac{\text{your testnet points}\times\text{your weETH tier bonus}}{\text{total testnet points from everyone (no tier bonuses)}}`}
         />
 
         <details className="mt-4 bg-gray-700 rounded">
@@ -145,12 +140,10 @@ export default function CalculationDetails({
       <section className="bg-gray-800 rounded-2xl p-4">
         <h3 className="text-xl font-semibold text-gray-200 text-center">Additional Rewards</h3>
         <p className="mt-2 text-gray-200 text-center">
-          Each selected bonus adds FDV% based on its supply and your bonus % (see formula).
+          Each selected bonus adds FDV% based on eligible supply (see formula).
         </p>
-        <img
-          src="/images/expedition-tiers-multipliers.png"
-          alt="Tier multipliers"
-          className="mx-auto w-2/3 rounded mt-2 shadow-md"
+        <BlockMath
+          math={String.raw`\text{Your share}\;=\;\frac{1}{\text{total supply eligible to the bonus}}`}
         />
 
         <details className="mt-4 bg-gray-700 rounded">
