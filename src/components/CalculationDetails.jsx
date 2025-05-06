@@ -84,7 +84,7 @@ export default function CalculationDetails({
         </p>
 
         <BlockMath
-          math={String.raw`\text{Your share}\;=\;\frac{\text{your MITO points from Teho Vault}\times\text{your weETH tier bonus}}{\text{total points from everyone (with their tier bonuses)}}`}
+          math={String.raw`\text{Your share}\;=\;\frac{\text{your MITO points from Theo Vault}\times\text{your weETH tier bonus}}{\text{total points from everyone (with their tier bonuses)}}`}
         />
 
         <details className="mt-4 bg-gray-700 rounded">
