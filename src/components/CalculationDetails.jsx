@@ -86,10 +86,10 @@ export default function CalculationDetails({
         <p className="mt-2 text-gray-200">
           Same FDV% formula as Expedition, but using your Theo points and your tier bonus.
         </p>
-        <img
-          src="/images/theo-flow.png"
-          alt="Theo Vault flow"
-          className="w-full rounded mt-2 shadow-md"
+        <BlockMath
+          math={String.raw`\text{Your share} \;=\;
+            \frac{\text{your points}\times\text{your weETH tier bonus}}
+                 {\text{total points from everyone}}`}
         />
 
         <details className="mt-4 bg-gray-700 rounded">
