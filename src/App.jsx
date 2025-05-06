@@ -307,18 +307,26 @@ export default function App() {
               >
                 {showDetails ? 'Hide calculation details' : 'Show calculation details'}
               </button>
-            + {showDetails && (
-   <CalculationDetails
-     expDenomBase={expDenomBase}
-     setExpDenomBase={setExpDenomBase}
-     expDenomFactor={expDenomFactor}
-     setExpDenomFactor={setExpDenomFactor}
-     testnetPool={testnetPool}
-     setTestnetPool={setTestnetPool}
-     bonuses={bonuses}
-     setBonuses={setBonuses}
-   />
- )}
+<div className="container mx-auto px-6 py-4">
+  <button
+    onClick={() => setShowDetails(v => !v)}
+    className="text-blue-400 underline mb-2"
+  >
+    {showDetails ? 'Hide calculation details' : 'Show calculation details'}
+  </button>
+
+  {showDetails && (
+    <CalculationDetails
+      expDenomBase={expDenomBase}
+      setExpDenomBase={setExpDenomBase}
+      expDenomFactor={expDenomFactor}
+      setExpDenomFactor={setExpDenomFactor}
+      testnetPool={testnetPool}
+      setTestnetPool={setTestnetPool}
+      bonuses={bonuses}
+      setBonuses={setBonuses}
+    />
+  )}
             </div>
           </>
         )}
