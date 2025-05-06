@@ -40,21 +40,20 @@ export default function CalculationDetails({
             Modify Expedition Constants (see "More details" for explanations)
           </summary>
           <div className="p-4 space-y-3">
-            <label className="flex items-center space-x-2 text-gray-200">
-              <span>Total Supply of Expedition Points:</span>
-              <input
-                type="number"
-                value={expDenomBase}
-                onChange={e => setExpDenomBase(+e.target.value)}
-                className="ml-2 p-1 rounded bg-gray-600 text-white w-32"
-              />
-           <span>
-      {(expDenomBase / 1_000_000).toLocaleString('fr-FR', {
-        maximumFractionDigits: 0
-      })}M
-    </span>
-  </div>
+<label className="flex items-center space-x-2 text-gray-200">
+  <span>Total Supply of Expedition Points:</span>
+  <input
+    type="number"
+    value={expDenomBase}
+    onChange={e => setExpDenomBase(+e.target.value)}
+    className="ml-2 p-1 rounded bg-gray-600 text-white w-32"
+  />
+  {/* single { … } and use Math.floor to drop decimals */}
+  <span>
+    {Math.floor(expDenomBase / 1_000_000).toLocaleString('fr-FR')}M
+  </span>
 </label>
+
             <label className="flex items-center space-x-2 text-gray-200">
               <span>Average Tier factor accros all holers:</span>
               <input
