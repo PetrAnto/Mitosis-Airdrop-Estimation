@@ -1,9 +1,7 @@
 // src/components/CalculationDetails.jsx
-import React from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-// Avec Vite, on peut importer le MD brut grâce à `?raw`
-import md from '../content/calculationDetails.md?raw';
+import React, { useState, useEffect } from 'react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 export default function CalculationDetails({
   expDenomBase, setExpDenomBase,
@@ -11,12 +9,20 @@ export default function CalculationDetails({
   testnetPool, setTestnetPool,
   bonuses, setBonuses
 }) {
+  const [md, setMd] = useState('')
+
+  useEffect(() => {
+    fetch('/calculationDetails.md')
+      .then(res => res.text())
+      .then(setMd)
+      .catch(console.error)
+  }, [])
+
   return (
     <div className="bg-gray-800 rounded-2xl p-4 text-sm space-y-6">
       <ReactMarkdown remarkPlugins={[remarkGfm]}>
         {md}
       </ReactMarkdown>
-
       {/* SECTION EXPEDITION */}
       <details className="bg-gray-700 rounded p-3">
         <summary className="cursor-pointer font-semibold text-gray-200">
