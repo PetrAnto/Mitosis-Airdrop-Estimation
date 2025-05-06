@@ -109,7 +109,7 @@ export default function CalculationDetails({
           We convert your Test $MITO balance to USD based on pool size and testnet % (see formula).
         </p>
         <BlockMath
-          math={String.raw`\text{Your share}\;=\;\frac{\text{your testnet points}\times\text{your weETH tier bonus}}{\text{total testnet points from everyone (no tier bonuses)}}`}
+          math={String.raw`\text{Your share}\;=\;\frac{\text{your testnet points}}{\text{total testnet points from everyone (no tier bonuses)}}`}
         />
 
         <details className="mt-4 bg-gray-700 rounded">
