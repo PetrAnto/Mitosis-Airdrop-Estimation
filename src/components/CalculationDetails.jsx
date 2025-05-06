@@ -25,8 +25,8 @@ export default function CalculationDetails({
       {/* Expedition */}
       <section className="bg-gray-800 rounded-2xl p-4">
         <h3 className="text-xl font-semibold text-gray-200 text-center">Expedition</h3>
-        <p className="mt-3 text-gray-200">
-          We calculate your share by weighting <em>total points</em> with your <em>tier bonus</em>.<br/> Tier is extracted from weETH campaign to suit most holders.
+        <p className="mt-2 text-gray-200">
+          We calculate your share by weighting your <em>total points</em> with your <em>tier bonus</em>.<br/> Tier is extracted from weETH campaign to simplify calculation and suit most holders.
         </p>
         <img
           src="/public/expedition-basic-formula-1.png"
@@ -49,8 +49,15 @@ export default function CalculationDetails({
                 className="ml-2 p-1 rounded bg-gray-600 text-white w-32"
               />
             </label>
+              <p className="text-gray-200">
+              (
+            {(expDenomBase / 1_000_000).toLocaleString('fr-FR', {
+             maximumFractionDigits: 0
+                })}
+              &nbsp;M points)
+              </p>
             <label className="flex items-center space-x-2 text-gray-200">
-              <span>Average Tier factor:</span>
+              <span>Average Tier factor accros all holers:</span>
               <input
                 type="number"
                 step="0.1"
