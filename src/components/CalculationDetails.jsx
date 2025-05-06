@@ -48,14 +48,13 @@ export default function CalculationDetails({
                 onChange={e => setExpDenomBase(+e.target.value)}
                 className="ml-2 p-1 rounded bg-gray-600 text-white w-32"
               />
-            </label>
-              <p className="text-gray-200">
-              (
-            {(expDenomBase / 1_000_000).toLocaleString('fr-FR', {
-             maximumFractionDigits: 0
-                })}
-              &nbsp;M points)
-              </p>
+           <span>
+      {(expDenomBase / 1_000_000).toLocaleString('fr-FR', {
+        maximumFractionDigits: 0
+      })}M
+    </span>
+  </div>
+</label>
             <label className="flex items-center space-x-2 text-gray-200">
               <span>Average Tier factor accros all holers:</span>
               <input
