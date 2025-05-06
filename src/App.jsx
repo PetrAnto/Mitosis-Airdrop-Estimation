@@ -7,6 +7,7 @@ import {
   fetchTheoPoints,
   fetchTestnetData,
 } from './api/mitosis'
+ import CalculationDetails from './components/CalculationDetails' // ajout PAA
 
 // Tier names & bonus multipliers
 const TIER_BONUS = { 1: 1.0, 2: 1.2, 3: 1.5, 4: 2.0, 5: 3.0 }
@@ -306,70 +307,18 @@ export default function App() {
               >
                 {showDetails ? 'Hide calculation details' : 'Show calculation details'}
               </button>
-              {showDetails && (
-                <div className="bg-gray-800 rounded-2xl p-4 text-sm space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-200">
-                    Calculation Details
-                  </h3>
-                  {/* Expedition details */}
-                  <div>
-                    <h4 className="font-semibold text-gray-200">Expedition</h4>
-                    <p><code>
-                      share% = (totalExpPoints × expeditionBoost) / (EXP_BASE × EXP_FACTOR) × 100
-                    </code></p>
-                    <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0 mt-2">
-                      <label className="flex-1">
-                        EXP_BASE:
-                        <input
-                          type="number"
-                          value={EXP_BASE}
-                          disabled
-                          className="ml-2 p-1 rounded bg-gray-700"
-                        />
-                      </label>
-                      <label className="flex-1">
-                        EXP_FACTOR:
-                        <input
-                          type="number"
-                          value={EXP_FACTOR}
-                          disabled
-                          className="ml-2 p-1 rounded bg-gray-700"
-                        />
-                      </label>
-                    </div>
-                  </div>
-                  {/* Theo details */}
-                  <div>
-                    <h4 className="font-semibold text-gray-200">Theo Vault</h4>
-                    <p><code>
-                      share% = (theoPoints × tierBonus) / (EXP_BASE × EXP_FACTOR) × 100
-                    </code></p>
-                  </div>
-                  {/* Testnet details */}
-                  <div>
-                    <h4 className="font-semibold text-gray-200">Testnet</h4>
-                    <p><code>
-                      USD = (testnetPoints / TEST_POOL) × FDV × testPct%
-                    </code></p>
-                    <label className="flex items-center space-x-2">
-                      TEST_POOL:
-                      <input
-                        type="number"
-                        value={TEST_POOL}
-                        disabled
-                        className="ml-2 p-1 rounded bg-gray-700"
-                      />
-                    </label>
-                  </div>
-                  {/* Additional details */}
-                  <div>
-                    <h4 className="font-semibold text-gray-200">Additional Rewards</h4>
-                    <p><code>
-                      USD = Σ (bonus.pct% × FDV ÷ bonus.supply)
-                    </code></p>
-                  </div>
-                </div>
-              )}
+            + {showDetails && (
+   <CalculationDetails
+     expDenomBase={expDenomBase}
+     setExpDenomBase={setExpDenomBase}
+     expDenomFactor={expDenomFactor}
+     setExpDenomFactor={setExpDenomFactor}
+     testnetPool={testnetPool}
+     setTestnetPool={setTestnetPool}
+     bonuses={bonuses}
+     setBonuses={setBonuses}
+   />
+ )}
             </div>
           </>
         )}
