@@ -30,7 +30,7 @@ export default function CalculationDetails({
         </p>
         <img
           src="/public/expedition-basic-formula-1.png"
-          width="200"
+          width="100"
           alt="Expedition formula"
           className="w-full rounded mt-2 shadow-md"
         />
