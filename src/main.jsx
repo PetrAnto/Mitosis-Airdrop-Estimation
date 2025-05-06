@@ -5,7 +5,7 @@ import App from './App';
 // Global styles (Tailwind, etc.)
 import './styles/global.css';
 // KaTeX styles (math rendering)
-import 'katex/dist/katex.min.css';
+import '~katex/dist/katex.min.css';
 
 // Chart.js registration
 import {
