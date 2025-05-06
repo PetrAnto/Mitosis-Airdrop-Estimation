@@ -27,7 +27,7 @@ export default function CalculationDetails({
       {/* Expedition */}
       <section className="bg-gray-800 rounded-2xl p-4">
         <h3 className="text-xl font-semibold text-gray-200 text-center">Expedition</h3>
-        <p className="mt-2 text-gray-200 text-center">
+        <p className="mt-2 text-gray-200 text-left">
           We calculate your share by weighting your <em>total points</em> with your{' '}
           <em>tier bonus</em>.<br />
           Tier is extracted from weETH campaign to suit most holders.
