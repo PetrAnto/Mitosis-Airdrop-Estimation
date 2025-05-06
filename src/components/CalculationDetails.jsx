@@ -79,8 +79,8 @@ export default function CalculationDetails({
       {/* Theo Vault */}
       <section className="bg-gray-800 rounded-2xl p-4">
         <h3 className="text-xl font-semibold text-gray-200 text-center">Theo Vault</h3>
-        <p className="mt-2 text-gray-200 text-center">
-          Same FDV% formula as Expedition, but using your Theo points and your tier bonus.
+        <p className="mt-2 text-gray-200 text-left">
+          Same formula as Expedition, but using your Theo points and your weETH tier bonus.
         </p>
 
         <BlockMath
@@ -105,8 +105,8 @@ export default function CalculationDetails({
       {/* Testnet */}
       <section className="bg-gray-800 rounded-2xl p-4">
         <h3 className="text-xl font-semibold text-gray-200 text-center">Testnet</h3>
-        <p className="mt-2 text-gray-200 text-center">
-          We convert your Test $MITO balance to USD based on pool size and testnet % (see formula).
+        <p className="mt-2 text-gray-200 text-left">
+          Your share of the total Testnet $MITO supply gives your share of the allocated airdrop.
         </p>
         <BlockMath
           math={String.raw`\text{Your share}\;=\;\frac{\text{your testnet points}}{\text{total testnet points from everyone (no tier bonuses)}}`}
@@ -139,8 +139,8 @@ export default function CalculationDetails({
       {/* Additional Rewards */}
       <section className="bg-gray-800 rounded-2xl p-4">
         <h3 className="text-xl font-semibold text-gray-200 text-center">Additional Rewards</h3>
-        <p className="mt-2 text-gray-200 text-center">
-          Each selected bonus adds FDV% based on eligible supply (see formula).
+        <p className="mt-2 text-gray-200 text-left">
+          Each selected bonus adds FDV% based on eligible supply (NFTs, Discord roles, etc...).
         </p>
         <BlockMath
           math={String.raw`\text{Your share}\;=\;\frac{1}{\text{total supply eligible to the bonus}}`}
