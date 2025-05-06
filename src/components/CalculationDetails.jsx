@@ -31,7 +31,7 @@ export default function CalculationDetails({
         <img
           src="/public/expedition-basic-formula-1.png"
           alt="Expedition formula"
-          className="w-32 rounded mt-2 shadow-md"
+          className="w-240 rounded mt-2 shadow-md"
         />
 
         {/* modify constants drawer */}
