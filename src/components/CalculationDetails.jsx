@@ -29,7 +29,7 @@ export default function CalculationDetails({
           We calculate your share by weighting <em>total points</em> with your <em>tier bonus</em>.
         </p>
         <img
-          src="/images/expedition-basic-formula-1.png"
+          src="/public/expedition-basic-formula-1.png"
           alt="Expedition formula"
           className="w-full rounded mt-2 shadow-md"
         />
