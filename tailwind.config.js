@@ -2,8 +2,6 @@ module.exports = {
   content: [
     // if you have an index.html in your project root:
     './index.html',
-    // **and** if you also have one under src/:
-    './src/index.html',
 
     // everything else in src/ that uses tailwind classes/component JSX
     './src/**/*.{js,jsx,ts,tsx,html}',
