@@ -13,6 +13,10 @@ export default function Header() {
           Try to estimate your airdrop value
         </h1>
       </div>
+      <div className="bg-red-500 p-4">
+  🔥 If you see this red box, Tailwind saw your file!
+</div>
+
     </header>
   );
 }
