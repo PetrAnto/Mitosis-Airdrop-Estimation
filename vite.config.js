@@ -1,30 +1,31 @@
 // vite.config.js
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-// the official Vite plugin for Tailwind CSS:
-import tailwindcss from '@tailwindcss/vite'
+// import the Vite-specific Tailwind plugin:
+import tailwind from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [
     react(),
-    tailwindcss(),  // ← call the same identifier you imported
+    // ← Note: we call `tailwind()`, matching the name we imported above
+    tailwind(),
   ],
   server: {
     proxy: {
       '/api/expedition': {
         target: 'https://api.expedition.mitosis.org',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/expedition/, '/v1/status'),
+        rewrite: (p) => p.replace(/^\/api\/expedition/, '/v1/status'),
       },
       '/api/theo': {
         target: 'https://matrix-proxy.mitomat.workers.dev',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/theo/, '/theo/portfolio'),
+        rewrite: (p) => p.replace(/^\/api\/theo/, '/theo/portfolio'),
       },
       '/api/testnet': {
         target: 'https://mito-api.customrpc.workers.dev',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/testnet/, '/api/wallet'),
+        rewrite: (p) => p.replace(/^\/api\/testnet/, '/api/wallet'),
       },
     },
   },
