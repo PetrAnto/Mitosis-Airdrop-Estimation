@@ -1,18 +1,19 @@
+// tailwind.config.js
+/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    // if you have an index.html in your project root:
+    // Vite’s entry HTML
     './index.html',
 
-    // everything else in src/ that uses tailwind classes/component JSX
-    './src/**/*.{js,jsx,ts,tsx,html}',
+    // Anything in public/ (e.g. markdown templates, static HTML snippets)
+    './public/**/*.{html,md}',
 
-    // if you ever in the future import or write .md/.mdx with classes:
-    //'./public/**/*.{html,md,mdx}'
+    // All of your React code
+    './src/**/*.{js,jsx,ts,tsx,html}',
   ],
   darkMode: 'class',
   theme: { extend: {} },
   plugins: [
     require('@tailwindcss/typography'),
-    // …any others
   ],
 }
