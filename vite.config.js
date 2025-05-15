@@ -1,10 +1,14 @@
 // vite.config.js
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+// this is Vite’s Tailwind plugin — not PostCSS’s:
+import tailwind from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [
     react(),
+    // this is Vite’s Tailwind plugin — not PostCSS’s:
+    tailwind(),
   ],
   server: {
     proxy: {
