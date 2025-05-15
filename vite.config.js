@@ -6,9 +6,9 @@ export default defineConfig({
   plugins: [
     react(),
   ],
-  // point Vite at your PostCSS config:
+  // Let Vite auto-locate postcss.config.cjs in project root:
   css: {
-    postcss: './postcss.config.cjs',
+    postcss: true
   },
   server: {
     proxy: {
