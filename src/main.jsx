@@ -2,8 +2,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
-// pull in your Tailwind-generated CSS:
-import './styles/global.css'
+import './styles/global.css'   // ← Pull in Tailwind
 
 import {
   Chart as ChartJS,
