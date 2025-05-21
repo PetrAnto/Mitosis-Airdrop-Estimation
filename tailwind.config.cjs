@@ -9,7 +9,7 @@ module.exports = {
     './public/**/*.{html,md}',
 
     // All of your React code
-    './src/**/*.{js,jsx,ts,tsx,html}',
+    './src/**/*.{cjs,js,jsx,ts,tsx,html}',
   ],
   darkMode: 'class',
   theme: { extend: {} },
